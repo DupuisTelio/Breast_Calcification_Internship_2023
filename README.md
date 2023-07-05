@@ -1,13 +1,19 @@
 # BreathCalcificationSummer2023
-Here is the repository containing the code I worked on during my internship in HMU-ISCA LAB (Greece) from June to August 2023
+Here is the repository containing the code and diapositives I worked on during my internship in HMU-ISCA LAB (Greece) from June to August 2023
 
-This project focus on Calcification detection in mammograms using deep learning models. My task is after making a little state of the art and understanding the problems involved, making a short presentation about it :
+This project focus on microcalcification detection in mammograms using deep learning models. 
+
+
+
+---
+
+To begin, my task is after making a little state of the art and understanding the problems involved, making a short presentation about it :
 
 --16/06 presentation diapositive : https://tome.app/staaage/template-product-design-review-clixv8r1s0kwjpf3dv24xw0ma
 
 New objectives:
 
-Then to focus on microcalcification shaped like dots/clusters of dots: detecting them and being able to derive statistics such as the size of these clusters, their shape, the distance separating them, etc. 
+Focus on microcalcification shaped like dots/clusters of dots: detecting them and being able to derive statistics such as the size of these clusters, their shape, the distance separating them, etc. 
 
 In order to achieve this, we start from an existing code for the detection of microcalcifications in the form of dots ("Segmenting Microcalcifications in Mammograms and its Applications" which will be designed by "CALC1" later on) and we try to apply to it the study of distributions carried out in "Feature-driven Local Cell Graph (FLocK): New Computational Pathology-based Descriptors for Prognosis of Lung Cancer and HPV Status of Oropharyngeal Cancers" which will be designed by "HPV" later on.
 
@@ -23,8 +29,12 @@ Based on this, we have considered two solutions. The first solution is to direct
 
 --03/07 presentation diapositive on the repository
 
-New objectives:
+New objectives proposed:
 
+Firstly, superimpose the clusters detected using the first proposed approach onto the mammogram images.
+Next, attempt to form clusters in a simple manner, such as by considering the distance separating the microcalcifications, without utilizing the HPV code.
+Additionally, search for new publications regarding the clustering of microcalcifications.
+Conduct a study on radiomic properties and establish my own list of properties for the second proposed approach, and modify the HPV code accordingly to accommodate this new list of properties.
 
 
 --- 
