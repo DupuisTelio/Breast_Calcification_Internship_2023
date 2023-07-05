@@ -1,10 +1,21 @@
 # BreathCalcificationSummer2023
 Here is the repository containing the code and diapositives I worked on during my internship in HMU-ISCA LAB (Greece) from June to August 2023
 
-This project focus on microcalcification detection in mammograms using deep learning models. 
+This project focus on microcalcification detection in mammograms using deep learning models, and features extraction from those detected microcalcifications. 
+
+** Calc1 folder : Containing the code about microcalcifications detection, the starting code and the modifications apart from it
+
+** Slides folder : Containing all the slides used at the meetings, providing a clear and compact summary of progress
+
+** HPV folder : Containing the code about features extraction, the starting code (tailored for nuclei and not microcalcifications) and the modifications apart from it
+
+** Publications_used folder : Containing all of the publications considered during this internship
+
+In order to make the code run, you need to run "CalcificationDetectionTelio.ipynb" from Calc1 folder then "HPV_step1and2.m" from HPV folder on the output image of the jupyter code.
 
 
 
+Here is a summary of my work during this internship:
 ---
 
 To begin, my task is after making a little state of the art and understanding the problems involved, making a short presentation about it :
