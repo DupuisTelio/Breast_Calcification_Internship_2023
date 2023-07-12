@@ -26,7 +26,7 @@ addpath(genpath([curpath '/nuclei_seg']));
 %I_normRed=I;
 
 % image mammo
-I = imread([pwd '\TELIO_modified_ouput_ex.png']);
+I = imread([pwd '\TELIO_img_for_HPV\modified_ouput_CALC1.png']);
 I_normRed=I;
 
 figure; imshow(I);
@@ -43,6 +43,17 @@ for k = 1:length(nuclei)
     plot(nuclei{k}(:,2), nuclei{k}(:,1), 'g-', 'LineWidth', 2);
 end
 hold off;
+
+%% Image_choice for plotting the clusters
+im_choice=1;
+if im_choice==0
+    % plot only on microcalcification
+    I = imread([pwd '\TELIO_img_for_HPV\modified_ouput_CALC1.png']);
+else
+    % direclty on the mammogram image
+    I = imread([pwd '\TELIO_img_for_HPV\input_00001.png']);
+end
+I_normRed=I;
 
 %% **** 2 construct and visulize FeDeG 
 % computing FeDeG using meanshift clustering

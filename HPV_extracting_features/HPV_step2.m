@@ -5,18 +5,22 @@ warning('off','all')
 curpath=pwd;
 addpath(genpath([curpath '/nuclei_seg']));
 
-choice=1;
+im_choice=2;
 
-if choice==0
-    % Nuclei image
+if im_choice==0
+    % Nuclei image     %% To be able to compare nuclei clustering and microcalcification clustering
     I = imread([pwd '/img/TMA 002-G6.png']);
     % crop image
     I=imcrop(I,round(round([623.5 1132.5 510 414])));
     [I_norm, ~, ~] = normalizeStaining(I);
     I_normRed=I_norm(:,:,1);
-else
-    % mammo image
-    I = imread([pwd '\TELIO_modified_ouput_ex.png']);
+elseif im_choice==1
+    % plot only on microcalcification
+    I = imread([pwd '\TELIO_img_for_HPV\modified_ouput_CALC1.png']);
+    I_normRed=I;
+elseif im_choice==2
+    % direclty on the mammogram image
+    I = imread([pwd '\TELIO_img_for_HPV\input_00001.png']);
     I_normRed=I;
 end
 
