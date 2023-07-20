@@ -49,4 +49,19 @@ Conduct a study on radiomic properties and establish my own list of properties f
 
 
 --- 
-From 03/07 to :
+From 03/07 to 17/07:
+  Some new publications have been found and studied but none of great interest for our specific case
+  We have superimposed the clusters detected using the first proposed approach onto the mammogram images and critized this first solution presented last week.
+  Also a new simple way to form clusters based on distance and pre-fixed numbers of clusters has been implemented.
+  Furthermore, progress has been on made on establishing an equivalent (in python) characteristics list for solution 2 (beginning directly with step 2 of HPV).
+
+--17/07 presentation diapositive on the repository
+
+New objectives proposed:
+
+  Have a deeper look to CALC1 model to study the impact of the threshold for the prediction (lower -> more areas detected) and how they determine it for their specific dataset (try to tailor to our CardioCare Dataset)
+
+  About the clustering: the numbers of clusters isn't really relevant. Characteristics, such as how pack the clusters are, the overlap, specific spatial characterisics, ... are the think that should be searched -> pursue with the FLOCK/FEDEG (HPV code)
+
+  Try to find interesting metric about the clusters once detected : such as the mean of the minimal distance between them, the radius of the cluster and the number of other MC in this radius. Also a new publication has been suggested : https://www.nature.com/articles/s41467-023-37822-0 (or available on this Github ) that might bring solution for those characterics. With this publication, the focus should be only on the fig3 and the measures for only 1 class of cell. 
+
