@@ -50,10 +50,14 @@ Conduct a study on radiomic properties and establish my own list of properties f
 
 --- 
 From 03/07 to 17/07:
-  Some new publications have been found and studied but none of great interest for our specific case
-  We have superimposed the clusters detected using the first proposed approach onto the mammogram images and critized this first solution presented last week.
-  Also a new simple way to form clusters based on distance and pre-fixed numbers of clusters has been implemented.
-  Furthermore, progress has been on made on establishing an equivalent (in python) characteristics list for solution 2 (beginning directly with step 2 of HPV).
+
+Some new publications have been found and studied but none of great interest for our specific case
+
+We have superimposed the clusters detected using the first proposed approach onto the mammogram images and critized this first solution presented last week.
+
+Also a new simple way to form clusters based on distance and pre-fixed numbers of clusters has been implemented.
+
+Furthermore, progress has been on made on establishing an equivalent (in python) characteristics list for solution 2 (beginning directly with step 2 of HPV).
 
 --17/07 presentation diapositive on the repository
 
