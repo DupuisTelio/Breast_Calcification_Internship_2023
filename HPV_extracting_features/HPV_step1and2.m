@@ -36,6 +36,8 @@ figure; imshow(I);
 p.scales=3:2:10;% the scale of nuclei
 
 [nuclei, properties] = nucleiSegmentationV2(I_normRed,p);
+%properties = HPV_load_properties_of_MC('TELIO_charac_for_HPV/features_list.txt');
+%nuclei = HPV_load_MC('TELIO_charac_for_HPV/MC_locations_list.txt');
 
 show(I,1);hold on;
 

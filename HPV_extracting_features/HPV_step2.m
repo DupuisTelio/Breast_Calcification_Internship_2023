@@ -16,7 +16,7 @@ if im_choice==0
     I_normRed=I_norm(:,:,1);
 elseif im_choice==1
     % plot only on microcalcification
-    I = imread([pwd '\TELIO_img_for_HPV\modified_ouput_CALC1.png']);
+    I = imread([pwd '\TELIO_img_for_HPV\modified_ouput2_CALC1.png']);
     I_normRed=I;
 elseif im_choice==2
     % direclty on the mammogram image

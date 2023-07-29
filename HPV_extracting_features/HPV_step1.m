@@ -16,7 +16,7 @@ if choice==0
     I_normRed=I_norm(:,:,1);
 else
     % mammo image
-    I = imread([pwd '\TELIO_img_for_HPV\modified_ouput_CALC1.png']);
+    I = imread([pwd '\TELIO_img_for_HPV\modified_ouput2_CALC1.png']);
     I_normRed=I;
 end
 figure; imshow(I);
