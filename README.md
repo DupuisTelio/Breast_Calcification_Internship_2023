@@ -69,3 +69,38 @@ New objectives proposed:
 
   Try to find interesting metric about the clusters once detected : such as the mean of the minimal distance between them, the radius of the cluster and the number of other MC in this radius. Also a new publication has been suggested : https://www.nature.com/articles/s41467-023-37822-0 (or available on this Github ) that might bring solution for those characterics. With this publication, the focus should be only on the fig3 and the measures for only 1 class of cell. 
 
+--- 
+
+From 17/07 to 28/07:
+
+A deeper study of CALC1 has been made to prove that the output is definitely a probablity of MC and the use of a threshold is only made after for the plots (so adding a threshold is justified in our case to  have a binary output, and this threshold is a bit lower than the one they put as an init value for their plot so more MC area can be found).
+
+FLOCK/FEDEG -> Solution is now completed, with functions in python that calculate the properties list then extract it in a txt file with a specific format, so that 2 matlab functions newly added can read thoses lists and put it as enter of step 2 (we avoid now step 1)
+The results are good in terms of clusters making and statistics about those clusters. Now we need to choose on what MC properties we want to perform our clusters.
+
+7 new ways of clustering tried in python but now that solution 2 is providing us a solid clustering, we will probably not pursue in this aspect.
+
+New metrics have been found studying the SPIAT (the new publication from last meeting, R language ) code, one have been implemented : the AMD (Average Minimal Distance) for MC of all the images, MC inside a specific cluster, MC of all the images but only compared with others MC inside their own cluster.
+Now we should try to find a way to take the clusters in matlab (output of HPV/FeDeG code) and put it as an entry of the AMD code in python. Also make this AMD between clusters and an other metric (found before the meeting) could be implemented about the number of MC in a given radius R.
+
+Made a script to turn the dicoms dataset in png, but didn't try yet with this dataset
+
+--28/07 presentation diapositive on the repository
+
+New objectives proposed:
+
+  Try with dicoms dataset, and ddsm dataset, IN breast dataset (clusters and ground truth) to compare ground truth, with the model
+
+  As said above:
+- adapt matlab clusters output to put it in python and calculate AMD / other metrics 
+- End AMD ( between clusters), do radius and maybe try new metrics ? 
+
+  own settled objective:
+- Cleaning the python code because it’s starting to be really messy
+- Maybe start working on a script to make the whole process easier of access
+
+
+  Create a way to extract MC locations (as I did in txt) in csv file for Georges and Elisaveth personnal work -> what kind of format would they prefer ?
+
+ 
+
