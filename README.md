@@ -92,12 +92,12 @@ New objectives proposed:
   Try with dicoms dataset, and ddsm dataset, IN breast dataset (clusters and ground truth) to compare ground truth, with the model
 
   As said above:
-- adapt matlab clusters output to put it in python and calculate AMD / other metrics 
-- End AMD ( between clusters), do radius and maybe try new metrics ? 
+adapt matlab clusters output to put it in python and calculate AMD / other metrics 
+End AMD ( between clusters), do radius and maybe try new metrics ? 
 
-  own settled objective:
-- Cleaning the python code because it’s starting to be really messy
-- Maybe start working on a script to make the whole process easier of access
+  Own settled objective:
+Cleaning the python code because it’s starting to be really messy
+Maybe start working on a script to make the whole process easier of access
 
 
   Create a way to extract MC locations (as I did in txt) in csv file for Georges and Elisaveth personnal work -> what kind of format would they prefer ?
