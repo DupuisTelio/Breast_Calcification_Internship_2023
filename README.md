@@ -90,6 +90,7 @@ Made a script to turn the dicoms dataset in png, but didn't try yet with this da
 New objectives proposed:
 
   Try with dicoms dataset, and ddsm dataset, IN breast dataset (clusters and ground truth) to compare ground truth, with the model
+-> ddsm, IN breast dataset :https://forthgr-my.sharepoint.com/:p:/g/personal/stamoulou_ics_forth_gr/EU4_Whd_lbhNtbBXvdNKpQwBOCTt12mon0iAgw5qCCYEqg?e=wFbkxC
 
   As said above:
 adapt matlab clusters output to put it in python and calculate AMD / other metrics 
