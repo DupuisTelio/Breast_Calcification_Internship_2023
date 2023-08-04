@@ -175,6 +175,9 @@ def upload_mamm():
 
     mamm = cv2.imread(k).astype(np.float32) / 255
 
+    if is_white_background(mamm):
+        mamm=1-mamm
+
     mamm = mamms_preprocess(mamm)
 
     return mamm
