@@ -177,7 +177,8 @@ def upload_mamm():
 
     if is_white_background(mamm):
         mamm=1-mamm
-
+        print("ret")
+    print("nret")
     mamm = mamms_preprocess(mamm)
 
     return mamm
