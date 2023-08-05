@@ -80,16 +80,13 @@ def plotting_Mc_treated_for_HPV(processed_mamm,label_image):
 
     props = skimage.measure.regionprops(label_image,processed_mamm)
     for region in props: #loop on MC 
-
         print("\n ==== MC or region label : ", region.label)
-        # if the MC is too small we remove it
-        if region.area < 2 or region.perimeter == 0 :
-            a=1
-            #print(" too small ! area : %d ", region.area)
-        else :
-            #plot
-            if region.label < 25 :
-                axs.flat[region.label].imshow(pixelValues,cmap = plt.cm.gray)
+        #plot
+        if region.label < 25 :
+            regionNG = region.image_intensity
+            regionMask = region.image_filled     #region.image
+            pixelValues = regionNG * regionMask
+            axs.flat[region.label].imshow(pixelValues,cmap = plt.cm.gray)
 
 
 
@@ -217,7 +214,7 @@ def Calculating_characteristics_and_MC_locations_for_HPV(processed_mamm,label_im
         # if the MC is too small we remove it
         if region.area < 2 or region.perimeter == 0 :
             a=1
-            #print(" too small ! area : %d ", region.area)
+            print(" too small ! area : %d ", region.area)
         else :
 
             fea = Features()
@@ -345,7 +342,7 @@ def Saving_images_used_and_produced(directory_path_img,mammog_name,processed_mam
 #####################################################################################
 def Trying_python_clusterisation(clustering_choice,binary_image,n_clusters=5,epsilon=10,min_samples=4):
     # Locations of calcifications
-    regions = np.argwhere(image == 1)
+    regions = np.argwhere(binary_image == 1)
 
     # Matrix of distance between regions
     dist_matrix = distance.cdist(regions, regions, metric='euclidean')
