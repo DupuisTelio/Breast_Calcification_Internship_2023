@@ -192,7 +192,7 @@ class Features :
     def print_features(self):
         print('Centroid (%.2f %.2f)' % (self.Centroid))
         print('Area %d' % (self.Area))
-        print('Eccentricicy %.2f' % (self.Eccentricicy))
+        print('Eccentricicy %.2f' % (self.Eccentricity))
         print('Solidity %.2f' % (self.Solidity))
         print('Circularity %.2f' % (self.Circularity))
         print('MajorAxisLength %.2f' % (self.MajorAxisLength ))
@@ -222,7 +222,7 @@ def Calculating_characteristics_and_MC_locations_for_HPV(processed_mamm,label_im
             # fill attributs directly python
             fea.Area =  region.area
             fea.Centroid = region.centroid
-            fea.Eccentricicy = region.eccentricity
+            fea.Eccentricity = region.eccentricity
 
             fea.Solidity = region.solidity
             fea.Circularity =  4 * math.pi * region.area / (region.perimeter**2)
@@ -251,7 +251,7 @@ def Calculating_characteristics_and_MC_locations_for_HPV(processed_mamm,label_im
             features_list_for_HPV.append(y+1)
             features_list_for_HPV.append(x+1)
             features_list_for_HPV.append(fea.Area)
-            features_list_for_HPV.append(fea.Eccentricicy)
+            features_list_for_HPV.append(fea.Eccentricity)
             features_list_for_HPV.append(fea.Solidity)
             features_list_for_HPV.append(fea.Circularity)
             features_list_for_HPV.append(fea.MajorAxisLength)
@@ -266,6 +266,7 @@ def Calculating_characteristics_and_MC_locations_for_HPV(processed_mamm,label_im
             MC_locations_for_HPV.append(0) # to separate each region
 
     print("\n Number of MC kept for their characteristics (not too small): %d " ,len(features_list))
+    print("\n Number of MC kept for their characteristics (not too small): %d " ,len(features_list_for_HPV/9))
     MC_locations_for_HPV.insert(0,len(features_list)) # number of MC kept
 
     return MC_locations_for_HPV,features_list_for_HPV,features_list
