@@ -162,7 +162,7 @@ def pre_treatment(prediction,threshold_value,fill_holes):
     #Inversion (for HPV)
     prediction_modified = 1 - prediction_modified
 
-    return prediction_modified
+    return prediction_modified,binary_image
 
 
 
