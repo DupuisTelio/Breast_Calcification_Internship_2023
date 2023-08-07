@@ -266,7 +266,7 @@ def Calculating_characteristics_and_MC_locations_for_HPV(processed_mamm,label_im
             MC_locations_for_HPV.append(0) # to separate each region
 
     print("\n Number of MC kept for their characteristics (not too small): %d " ,len(features_list))
-    print("\n Number of MC kept for their characteristics (not too small): %d " ,len(features_list_for_HPV/9))
+    print("\n Number of MC kept for their characteristics (not too small): %d " ,len(features_list_for_HPV)/9)
     MC_locations_for_HPV.insert(0,len(features_list)) # number of MC kept
 
     return MC_locations_for_HPV,features_list_for_HPV,features_list
