@@ -214,7 +214,7 @@ def Calculating_characteristics_and_MC_locations_for_HPV(processed_mamm,label_im
         # if the MC is too small we remove it
         if region.area < 2 or region.perimeter == 0 :
             a=1
-            print(" too small ! area : %d ", region.area)
+            #print(" too small ! area : %d ", region.area)
         else :
 
             fea = Features()
