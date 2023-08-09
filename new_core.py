@@ -85,12 +85,12 @@ def get_act_width(mamm):
 
 def clean_mamm(mamm):
     background_val = 0
-    mamm[:10, :, ...] = 0
-    mamm[-10:, :, ...] = 0
-    mamm[:, -10:, ...] = 0
+    #mamm[:10, :, ...] = 0
+    #mamm[-10:, :, ...] = 0
+    #mamm[:, -10:, ...] = 0
         
-    msk1 = (mamm[:, :, 0] == mamm[:, :, 1]) & (mamm[:, :, 1] == mamm[:, :, 2])
-    mamm = mamm.mean(axis=2) * msk1
+    #msk1 = (mamm[:, :, 0] == mamm[:, :, 1]) & (mamm[:, :, 1] == mamm[:, :, 2])
+    #mamm = mamm.mean(axis=2) * msk1
     msk = np.uint8((mamm > background_val) * 255)
     msk = cv2.morphologyEx(msk, cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_RECT, (50, 50)))
 
@@ -185,6 +185,7 @@ def upload_mamm(image_type):
     mamm = mamms_preprocess(mamm)
 
     return mamm
+
 
 
 
