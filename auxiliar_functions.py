@@ -265,8 +265,8 @@ def Calculating_characteristics_and_MC_locations_for_HPV(processed_mamm,label_im
             MC_locations_for_HPV.extend(temporary) # the pixels are added
             MC_locations_for_HPV.append(0) # to separate each region
 
-    print("\n Number of MC kept for their characteristics (not too small): %d " ,len(features_list))
-    print("\n Number of MC kept for their characteristics (not too small): %d " ,len(features_list_for_HPV)/9)
+    
+    print("\n Number of MC kept for their characteristics (not too small): %d " ,round(len(features_list_for_HPV)/9))
     MC_locations_for_HPV.insert(0,len(features_list)) # number of MC kept
 
     return MC_locations_for_HPV,features_list_for_HPV,features_list
@@ -395,7 +395,20 @@ def Trying_python_clusterisation(clustering_choice,binary_image,n_clusters=5,eps
 #####################################################################################
 "Dicoms dataset read and transformation to png"
 #####################################################################################
-def transforming_Dicoms_to_png(input_folder,output_folder):
+def convert_dicoms_to_png(path):
+    dicoms_image = pydicom.dcmread(path)
+
+    # Convert Dicoms to PIL Image
+    im = Image.fromarray(dicoms_image.pixel_array)
+
+    # Convert the image to 8 bits
+    image_16bit = np.array(im)
+    image_8bit = ((image_16bit - image_16bit.min()) / (image_16bit.ptp() / 255.0)).astype(np.uint8)
+    image_8bit = 255 - image_8bit  # Inverse
+    im_8bit = Image.fromarray(image_8bit)
+    return im_8bit
+
+def transforming_Dicoms_folder_to_png(input_folder,output_folder):
     #WARNING you might need to do : !pip install pydicom
 
     os.makedirs(output_folder, exist_ok=True) #making the output folder if it doesn't exist
@@ -406,16 +419,8 @@ def transforming_Dicoms_to_png(input_folder,output_folder):
             try:
                 # Load Dicoms file
                 path = os.path.join(input_folder, filename)
-                ds = pydicom.dcmread(path)
 
-                # Convert Dicoms to PIL Image
-                im = Image.fromarray(ds.pixel_array)
-
-                # Convert the image to 8 bits
-                image_16bit = np.array(im)
-                image_8bit = ((image_16bit - image_16bit.min()) / (image_16bit.ptp() / 255.0)).astype(np.uint8)
-                image_8bit = 255 - image_8bit  # Inverse
-                im_8bit = Image.fromarray(image_8bit)
+                im_8bit = convert_dicoms_to_png(path)
 
                 # Saved with JPG format
                 new_filename = os.path.splitext(filename)[0] + '.png'  # Add '.jpg' extension at the file name
@@ -425,3 +430,4 @@ def transforming_Dicoms_to_png(input_folder,output_folder):
                 print(f"Error in the treatment of {filename}: {e}")  # in case of error
         else:
             print(f"The file {filename} isn't .dcm")  
+
