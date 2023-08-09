@@ -9,7 +9,7 @@ import os
 from google.colab.patches import cv2_imshow
 from google.colab import files
 from IPython.display import clear_output 
-
+import pydicom
 
 
 
@@ -168,13 +168,18 @@ def load_mamm(case_path, max_height=0, width=0, encoder=None):
 
     return mamm
 
-def upload_mamm():
+def upload_mamm(image_type):
     uploaded = files.upload()
     for k, v in uploaded.items():
         open(k, 'wb').write(v)
         break;
 
-    mamm = cv2.imread(k).astype(np.float32) / 255
+    if image_type == "dicoms":
+        dicom_data = pydicom.dcmread(k)
+        mamm = dicom_data.pixel_array.astype(np.float32) / np.max(dicom_data.pixel_array)
+    elif image_type == "png":
+        mamm = cv2.imread(k).astype(np.float32) / 255
+
     if is_white_background(mamm, threshold=128):
         mamm=1-mamm
     mamm = mamms_preprocess(mamm)
