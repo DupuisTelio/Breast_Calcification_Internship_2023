@@ -85,7 +85,10 @@ def get_act_width(mamm):
 
 def clean_mamm(mamm):
 
-    _, _, nb_channels = mamm.shape
+    if len(mamm.shape) == 2: 
+        nb_channels = 1
+    elif len(mamm.shape) == 3:
+        _, _, nb_channels = mamm.shape
 
     background_val = 0
 
@@ -96,12 +99,11 @@ def clean_mamm(mamm):
             
         msk1 = (mamm[:, :, 0] == mamm[:, :, 1]) & (mamm[:, :, 1] == mamm[:, :, 2])
         mamm = mamm.mean(axis=2) * msk1
-        
+
     elif nb_channels==2:
         mamm[:10, :] = 0 #20
         mamm[-10:, :] = 0
         mamm[:, -10:] = 0
-        #mamm[:, :20] = 0
 
     msk = np.uint8((mamm > background_val) * 255)
     msk = cv2.morphologyEx(msk, cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_RECT, (50, 50)))
