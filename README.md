@@ -103,5 +103,70 @@ Maybe start working on a script to make the whole process easier of access
 
   Create a way to extract MC locations (as I did in txt) in csv file for Georges and Elisaveth personnal work -> what kind of format would they prefer ?
 
- 
+
+ --- 
+
+From 29/07 to 04/08:
+
+2 news datasets (Cardiocare and INbreast) have been used to try the second solution on. Pretty convenient results, still need to compare with ground truth.
+
+Most of the functionning jupyter code has been cleaned and put in 2 python file : new_core.py and auxiliar_functions.py accessible on this github.
+
+New function made to save MC_locations and properties detected in a csv file, what kind of format would George and Elisaveth (my supervisors) prefer as an entry of their algorithms?
+
+A deeper study of the parameters on which we perform the clustering, which are relevant or not?
+
+2 new python metrics : AMD_between_clusters (border to border, 3 functions ) and McIN (Nb of Mc given a radius R) -> How do we choose R?
+
+Advance on exctracting matlab output but not finished yet.
+
+--04/08 presentation diapositive on the repository
+
+New objectives proposed:
+
+Change the functions to save MC_locations and properties in the specific format of INbreast, and respecting George code's input (row to row ): each row a MC, patient_ID, extra-information,...
+
+For the AMD do centroid-centroid not borders-borders distance, it's easier even if maybe loosing a bit information, George already have it in his code, and I should keep borders-borders because even if it's more complicated it might interesant later on.
+
+Have a look on the graphs of flock after clustering and before FeDeG stats
+FeDeG have a look if needs clusters before FeDeG stats or not ? (probably yes)
+
+Remove errors on borders in calc1 -> use general mask, look for a threshold ?
+
+Find a way to evaluate the performance
+
+
+ --- 
+
+From 05/08 to 09/08:
+
+Only 2 days (monday and tuesday 07-08/08) because of the weekend, so not so much advances there regarding the last objective settled.
+
+New convincing tries on INbreast dataset.
+Size problems while loading the tremendous DDSM dataset with their specific software (NBIA data retriever) on my non-powerfull laptop.
+
+Cleaning the python code, a lot of jupyter functions have been add in the 2 (presented last time) python functions.
+
+Problem reading Dicoms, converting to png =loosing information -> new approach working directly on the dicoms image
+Changing some new_core.py functions in order to adapt to 3D images and dicoms image
+
+Advance on adaptation of matlab outputs
+
+(Finishing) Implementation of the saving function in the expected table format, overwriting option, folder,...
+
+Problems with high-breast density mammogram (INbreast)
+
+
+--09/08 presentation diapositive on the repository
+
+New objectives proposed:
+
+Smalls change on the saving function for the table ( Patient_id -> file_name, Add number of mc, add extra_information), send a table with 5 patients to George so that he can use it as an input of his code 
+  
+Estimate accuracy with ground truth (INbreast xml file)
+
+Receive a part of DDSM dataset loaded by Grigorios (thanks) on a more powerfull machine
+
+Breath density inBreath -> threshold ?
+
 
