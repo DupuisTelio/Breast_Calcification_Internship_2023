@@ -18,6 +18,9 @@ import pickle
 import csv
 import cv2
 
+#Saving in a csv fil for George and Elisaveth
+import pandas as pd
+
 #Dicoms dataset
 import pydicom
 from PIL import Image
@@ -328,6 +331,94 @@ def Saving_images_used_and_produced(directory_path_img,mammog_name,processed_mam
     cv2.imwrite(file_path2, prediction)
     cv2.imwrite(file_path3, binary_image)
 
+
+
+
+def create_mc_data_list(features_list,number_of_characteristics):
+    num_mc = round(len(features_list)/number_of_characteristics)
+    mc_data = []
+    for mc_index in range(num_mc):
+        list_index=mc_index*number_of_characteristics
+        centroid_y = features_list[list_index]-1
+        centroid_x = features_list[1+list_index]-1
+        Area = features_list[2+list_index]
+        Eccentricity = features_list[3+list_index]
+        Solidity = features_list[4+list_index]
+        Circularity = features_list[5+list_index]
+        MajorAxisLength = features_list[6+list_index]
+        MinorAxisLength = features_list[7+list_index]
+        MeanIntensity = features_list[8+list_index]
+        mc_data.append((num_mc,centroid_x, centroid_y, Area, Eccentricity, Solidity, Circularity, MajorAxisLength, MinorAxisLength, MeanIntensity))
+    return mc_data
+
+def append_patient_data(data, file_name, mc_data,INbreast_format,INbreast_row,patient_id):
+    new_rows = []
+    for mc_row in mc_data:
+        if INbreast_format:
+          'Patient ID','Patient age','Laterality','View','Acquisition date','ACR','Bi-Rads'
+          new_row = [file_name,patient_id,INbreast_row[1],INbreast_row[2],INbreast_row[3],INbreast_row[4],INbreast_row[6],INbreast_row[7]] + list(mc_row)
+        else:
+          new_row = [file_name] + list(mc_row)
+        new_rows.append(new_row)
+    data.extend(new_rows)
+
+def Formating_Saving_Mc_Information(directory_path_MC_table,file_name,patient_id,features_list,number_of_characteristics,table_name,is_INbreast_format):
+    # Path making
+    if not os.path.exists(directory_path_MC_table):
+        os.makedirs(directory_path_MC_table)
+    
+    INbreast_additionnal_information=[]
+
+    if is_INbreast_format: 
+        # Loading the INbreast table (for the extra information we don't have)
+        INb_csv_file = os.path.join(directory_path_MC_table, f"INbreast.csv")
+        INbreast_data = pd.read_csv(INb_csv_file).values.tolist()
+
+        # Loop on each row of the table
+        for row_INb in INbreast_data:
+            row_values = row_INb[0].split(';') # csv format
+            if (row_values[5] == file_name): #row_values[5] corresponds to file name in INbreast csv file
+                INbreast_additionnal_information = row_values # we only keep the one corresponding to our patient
+                break 
+        # test
+        if len(INbreast_additionnal_information)==0:
+            print("Warning there is an error, the corresponding file is missing in INbreast additionnal information table")
+
+    # Path to the table
+    csv_table_file = os.path.join(directory_path_MC_table, f"{table_name}.csv")
+
+    # Making or loading the data list
+    if os.path.exists(csv_table_file):
+        data = pd.read_csv(csv_table_file).values.tolist()
+        print("You have typed the name of an already existing file, data will be stored inside of it")
+    else:
+        data = []
+
+    # Check if already existing patient ID in this file
+    if is_INbreast_format:
+      patient_exists = any(str(row[0]).lower() == str(file_name).lower() for row in data) #problem of MAJ-min
+    else :
+      patient_exists = any(str(round(row[0])).lower() == str(file_name).lower() for row in data) #problem of MAJ-min
+
+    if not patient_exists :
+        mc_data=create_mc_data_list(features_list,number_of_characteristics)
+        append_patient_data(data, file_name, mc_data,INbreast_format,INbreast_additionnal_information,patient_id)
+
+    else: # if the patient already exists: we either overwrite the existing data or cancelling
+        overwrite = ("yes"==input("Already existing patient. Do you want to overwrite ? (yes/no) ").lower())
+        if overwrite:
+            # Delete old data
+            data = [row for row in data if row[0] != file_name]
+
+            mc_data=create_mc_data_list(features_list,number_of_characteristics)
+            append_patient_data(data, file_name, mc_data,INbreast_format,INbreast_additionnal_information,patient_id)
+
+    # Update csv file
+    if is_INbreast_format:
+      updated_df = pd.DataFrame(data, columns=['File name','Patient ID','Patient age','Laterality','View','Acquisition date','ACR','Bi-Rads','Number of MC','centroid_x', 'centroid_y', 'Area', 'Eccentricity', 'Solidity', 'Circularity', 'MajorAxisLength', 'MinorAxisLength', 'MeanIntensity'])
+    else :
+      updated_df = pd.DataFrame(data, columns=['File name','Number of MC','centroid_x', 'centroid_y', 'Area', 'Eccentricity', 'Solidity', 'Circularity', 'MajorAxisLength', 'MinorAxisLength', 'MeanIntensity'])
+    updated_df.to_csv(csv_table_file, index=False)
 
 
 #####################################################################################
