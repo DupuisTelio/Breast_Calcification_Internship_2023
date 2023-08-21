@@ -41,12 +41,12 @@ def testing_or_making_path(folder_path):
 def Making_the_folder_path(Main_folder_path):
     testing_or_making_path(Main_folder_path)
     
-    directory_path_ground_truth = os.path.join(directory_path_characteristics,"Ground_truth")
-    directory_path_dicoms_to_png_inputs = os.path.join(directory_path_characteristics,"Dicoms_input_folder")
-    directory_path_dicoms_to_png_outputs = os.path.join(directory_path_characteristics,"Dicoms_input_folder")
-    directory_path_img = os.path.join(directory_path_characteristics,"Saved_Images")
-    directory_path_characteristics_for_HPV = os.path.join(directory_path_characteristics,"Saved_characteristics")
-    directory_path_MC_table = os.path.join(directory_path_characteristics,"MC_table")
+    directory_path_ground_truth = os.path.join(Main_folder_path,"Ground_truth")
+    directory_path_dicoms_to_png_inputs = os.path.join(Main_folder_path,"Dicoms_input_folder")
+    directory_path_dicoms_to_png_outputs = os.path.join(Main_folder_path,"Dicoms_input_folder")
+    directory_path_img = os.path.join(Main_folder_path,"Saved_Images")
+    directory_path_characteristics_for_HPV = os.path.join(Main_folder_path,"Saved_characteristics")
+    directory_path_MC_table = os.path.join(Main_folder_path,"MC_table")
 
     testing_or_making_path(directory_path_ground_truth)
     testing_or_making_path(directory_path_dicoms_to_png_inputs)
