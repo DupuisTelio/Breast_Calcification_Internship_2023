@@ -1,4 +1,4 @@
-# BreathCalcificationSummer2023
+# BreastCalcificationSummer2023
 Here is the repository containing the code and diapositives I worked on during my internship in HMU-ISCA LAB (Greece) from June to August 2023
 
 This project focus on microcalcification detection in mammograms using deep learning models, and features extraction from those detected microcalcifications. 
@@ -167,6 +167,6 @@ Estimate accuracy with ground truth (INbreast xml file)
 
 Receive a part of DDSM dataset loaded by Grigorios (thanks) on a more powerfull machine
 
-Breath density inBreath -> threshold ?
+Breast density inBreast -> threshold ?
 
 
