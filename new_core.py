@@ -187,10 +187,6 @@ def load_mamm(case_path, max_height=0, width=0, encoder=None):
 
 def upload_mamm(image_type):
     uploaded = files.upload()
-    for k, v in uploaded.items():
-        open(k, 'wb').write(v)
-        break;
-
     # Supposons que 'uploaded_file' est le fichier téléchargé via files.upload()
     uploaded_file = next(iter(uploaded))
 
@@ -198,6 +194,12 @@ def upload_mamm(image_type):
     image = Image.open(uploaded_file)
     print(image.format)
     
+    for k, v in uploaded.items():
+        open(k, 'wb').write(v)
+        break;
+
+    
+
     if image_type == "dicoms":
         dicom_data = pydicom.dcmread(k)
         mamm = dicom_data.pixel_array.astype(np.float32) / np.max(dicom_data.pixel_array)
