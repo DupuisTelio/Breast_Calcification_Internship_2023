@@ -68,10 +68,11 @@ if 'cpu' in str(device):
 model.to(device)
 
 def left_mamm(mamm):
+    left_transpose=False
     if mamm[:, :200, ...].sum() < mamm[:, -200:, ...].sum():
             mamm[:, :, ...] = mamm[:, ::-1, ...]
-
-    return mamm
+            left_transpose=True
+    return left_transpose,mamm
 
 
 def get_act_width(mamm):
@@ -129,14 +130,14 @@ def cut_mamm(mamm, act_w):
     return mamm
 
 def mamms_preprocess(mamm):
-    mamm = left_mamm(mamm)
+    left_transpose,mamm = left_mamm(mamm)
     mamm = clean_mamm(mamm)
 
     act_w = get_act_width(mamm)
     
     mamm = cut_mamm(mamm, act_w)
 
-    return mamm
+    return mamm,act_w,left_transpose
 
 def predict(net, img):
     model_device = next(net.parameters()).device
@@ -196,9 +197,9 @@ def upload_mamm(image_type):
 
     if is_white_background(mamm, threshold=128):
         mamm=1-mamm
-    mamm = mamms_preprocess(mamm)
+    mamm,act_w,left_transpose = mamms_preprocess(mamm)
 
-    return mamm
+    return mamm,act_w,left_transpose
 
 
 
