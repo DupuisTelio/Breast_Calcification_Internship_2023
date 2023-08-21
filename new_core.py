@@ -185,35 +185,29 @@ def load_mamm(case_path, max_height=0, width=0, encoder=None):
 
     return mamm
 
-def upload_mamm(image_type):
+def upload_mamm():
     uploaded = files.upload()
 
-    # Supposons que 'uploaded_file' est le fichier téléchargé via files.upload()
+    # get name and extension of  the file    
     uploaded_file = next(iter(uploaded))
-    
-    # Obtenir le nom de fichier et son extension
     file_name, file_extension = os.path.splitext(uploaded_file)
-    print(file_extension,file_extension.lower(),file_name)
+    file_extension=file_extension.lower()
 
     for k, v in uploaded.items():
         open(k, 'wb').write(v)
         break;
 
-    
-
-    if image_type == "dicoms":
+    if file_extension == ".dcm":
         dicom_data = pydicom.dcmread(k)
         mamm = dicom_data.pixel_array.astype(np.float32) / np.max(dicom_data.pixel_array)
-    elif image_type == "png":
+    elif file_extension == ".png":
         mamm = cv2.imread(k).astype(np.float32) / 255
-    print("Image size:",mamm.shape)
-    print("Image type:",mamm.dtype)
 
     if is_white_background(mamm, threshold=128):
         mamm=1-mamm
     mamm,act_w,left_transpose = mamms_preprocess(mamm)
 
-    return mamm,act_w,left_transpose
+    return mamm,act_w,left_transpose,mamm.shape
 
 
 
