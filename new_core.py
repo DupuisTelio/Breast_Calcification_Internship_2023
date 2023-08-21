@@ -187,13 +187,14 @@ def load_mamm(case_path, max_height=0, width=0, encoder=None):
 
 def upload_mamm(image_type):
     uploaded = files.upload()
+
     # Supposons que 'uploaded_file' est le fichier téléchargé via files.upload()
     uploaded_file = next(iter(uploaded))
-
-    # Ouvrir le fichier avec PIL
-    image = Image.open(uploaded_file)
-    print(image.format)
     
+    # Obtenir le nom de fichier et son extension
+    file_name, file_extension = os.path.splitext(uploaded_file)
+    print(file_extension,file_extension.lower(),file_name)
+
     for k, v in uploaded.items():
         open(k, 'wb').write(v)
         break;
