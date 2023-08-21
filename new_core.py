@@ -197,17 +197,22 @@ def upload_mamm():
         open(k, 'wb').write(v)
         break;
 
+    # reading
     if file_extension == ".dcm":
         dicom_data = pydicom.dcmread(k)
         mamm = dicom_data.pixel_array.astype(np.float32) / np.max(dicom_data.pixel_array)
     elif file_extension == ".png":
         mamm = cv2.imread(k).astype(np.float32) / 255
 
+    # get the initial size to compare with ground truth
+    initial_shape=mamm.shape
+
+    # preprocessing
     if is_white_background(mamm, threshold=128):
         mamm=1-mamm
     mamm,act_w,left_transpose = mamms_preprocess(mamm)
 
-    return mamm,act_w,left_transpose,mamm.shape
+    return mamm,act_w,left_transpose,initial_shape
 
 
 

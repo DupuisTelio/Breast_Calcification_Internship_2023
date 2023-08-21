@@ -25,6 +25,38 @@ import pandas as pd
 import pydicom
 from PIL import Image
 
+#Reading ground truth
+import sys
+from xml.dom import minidom
+
+
+
+#####################################################################################
+"Making path"
+#####################################################################################
+def testing_or_making_path(folder_path):
+    if not os.path.exists(folder_path):
+          os.makedirs(folder_path)
+
+def Making_the_folder_path(Main_folder_path):
+    testing_or_making_path(Main_folder_path)
+    
+    directory_path_ground_truth = os.path.join(directory_path_characteristics,"Ground_truth")
+    directory_path_dicoms_to_png_inputs = os.path.join(directory_path_characteristics,"Dicoms_input_folder")
+    directory_path_dicoms_to_png_outputs = os.path.join(directory_path_characteristics,"Dicoms_input_folder")
+    directory_path_img = os.path.join(directory_path_characteristics,"Saved_Images")
+    directory_path_characteristics_for_HPV = os.path.join(directory_path_characteristics,"Saved_characteristics")
+    directory_path_MC_table = os.path.join(directory_path_characteristics,"MC_table")
+
+    testing_or_making_path(directory_path_ground_truth)
+    testing_or_making_path(directory_path_dicoms_to_png_inputs)
+    testing_or_making_path(directory_path_dicoms_to_png_outputs)
+    testing_or_making_path(directory_path_img)
+    testing_or_making_path(directory_path_characteristics_for_HPV)
+    testing_or_making_path(directory_path_MC_table)
+    
+    return directory_path_ground_truth, directory_path_dicoms_to_png_inputs, directory_path_dicoms_to_png_outputs, directory_path_img, directory_path_characteristics_for_HPV,directory_path_MC_table
+                                
 
 
 #####################################################################################
@@ -281,8 +313,7 @@ def Calculating_characteristics_and_MC_locations_for_HPV(processed_mamm,label_im
 #####################################################################################
 def Saving_characteristics_HPV_format(directory_path_characteristics,mammog_name,MC_locations,features_list,chosen_format="txt"):
     #chosen_format: txt or csv but txt recommanded for HPV
-    if not os.path.exists(directory_path_characteristics):
-        os.makedirs(directory_path_characteristics)
+    testing_or_making_path(directory_path_characteristics)
 
     file_path_features = os.path.join(directory_path_characteristics, f'{mammog_name}_features_list_for_HPV.{chosen_format}')
     file_path_MClocations = os.path.join(directory_path_characteristics, f'{mammog_name}_MC_locations_list_for_HPV.{chosen_format}')
@@ -312,8 +343,8 @@ def Saving_characteristics_HPV_format(directory_path_characteristics,mammog_name
 
 def Saving_images_used_and_produced(directory_path_img,mammog_name,processed_mamm,prediction,binary_image,chosen_format="png"):
     #chosen_format: png or tif
-    if not os.path.exists(directory_path_img):
-        os.makedirs(directory_path_img)
+    testing_or_making_path(directory_path_img)
+
     # Loaded mammog
     file_path1 = os.path.join(directory_path_img, f'{mammog_name}_processed_mamm.{chosen_format}')
     # First prediction
@@ -334,6 +365,9 @@ def Saving_images_used_and_produced(directory_path_img,mammog_name,processed_mam
 
 
 
+#####################################################################################
+"Saving characteristics, locations in a specific csv Table for INbreast case"
+#####################################################################################
 def create_mc_data_list(features_list,number_of_characteristics):
     num_mc = round(len(features_list)/number_of_characteristics)
     mc_data = []
@@ -364,9 +398,8 @@ def append_patient_data(data, file_name, mc_data,INbreast_format,INbreast_row,pa
 
 def Formating_Saving_Mc_Information(directory_path_MC_table,file_name,patient_id,features_list,number_of_characteristics,table_name,is_INbreast_format):
     # Path making
-    if not os.path.exists(directory_path_MC_table):
-        os.makedirs(directory_path_MC_table)
-    
+    testing_or_making_path(directory_path_MC_table)
+
     INbreast_additionnal_information=[]
 
     if is_INbreast_format: 
@@ -402,7 +435,7 @@ def Formating_Saving_Mc_Information(directory_path_MC_table,file_name,patient_id
 
     if not patient_exists :
         mc_data=create_mc_data_list(features_list,number_of_characteristics)
-        append_patient_data(data, file_name, mc_data,INbreast_format,INbreast_additionnal_information,patient_id)
+        append_patient_data(data, file_name, mc_data,is_INbreast_format,INbreast_additionnal_information,patient_id)
 
     else: # if the patient already exists: we either overwrite the existing data or cancelling
         overwrite = ("yes"==input("Already existing patient. Do you want to overwrite ? (yes/no) ").lower())
@@ -411,7 +444,7 @@ def Formating_Saving_Mc_Information(directory_path_MC_table,file_name,patient_id
             data = [row for row in data if row[0] != file_name]
 
             mc_data=create_mc_data_list(features_list,number_of_characteristics)
-            append_patient_data(data, file_name, mc_data,INbreast_format,INbreast_additionnal_information,patient_id)
+            append_patient_data(data, file_name, mc_data,is_INbreast_format,INbreast_additionnal_information,patient_id)
 
     # Update csv file
     if is_INbreast_format:
@@ -419,6 +452,8 @@ def Formating_Saving_Mc_Information(directory_path_MC_table,file_name,patient_id
     else :
       updated_df = pd.DataFrame(data, columns=['File name','Number of MC','centroid_x', 'centroid_y', 'Area', 'Eccentricity', 'Solidity', 'Circularity', 'MajorAxisLength', 'MinorAxisLength', 'MeanIntensity'])
     updated_df.to_csv(csv_table_file, index=False)
+
+
 
 
 #####################################################################################
