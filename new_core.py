@@ -9,9 +9,11 @@ import os
 from google.colab.patches import cv2_imshow
 from google.colab import files
 from IPython.display import clear_output 
+
+
+#Dicoms dataset
 import pydicom
-
-
+from PIL import Image
 
 SHEBA_MEAN = 0.1572722182674478
 SHEBA_STD = 0.16270082671743363
@@ -189,6 +191,13 @@ def upload_mamm(image_type):
         open(k, 'wb').write(v)
         break;
 
+    # Supposons que 'uploaded_file' est le fichier téléchargé via files.upload()
+    uploaded_file = next(iter(uploaded))
+
+    # Ouvrir le fichier avec PIL
+    image = Image.open(uploaded_file)
+    print(image.format)
+    
     if image_type == "dicoms":
         dicom_data = pydicom.dcmread(k)
         mamm = dicom_data.pixel_array.astype(np.float32) / np.max(dicom_data.pixel_array)
