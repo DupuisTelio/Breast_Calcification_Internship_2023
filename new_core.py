@@ -189,9 +189,6 @@ def upload_mamm(image_type):
         open(k, 'wb').write(v)
         break;
 
-    print("Image size:",uploaded.shape)
-    print("Image type:",uploaded.dtype)
-
     if image_type == "dicoms":
         dicom_data = pydicom.dcmread(k)
         mamm = dicom_data.pixel_array.astype(np.float32) / np.max(dicom_data.pixel_array)
