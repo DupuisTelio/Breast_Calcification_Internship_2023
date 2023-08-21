@@ -189,11 +189,16 @@ def upload_mamm(image_type):
         open(k, 'wb').write(v)
         break;
 
+    print("Image size:",uploaded.shape)
+    print("Image type:",uploaded.dtype)
+
     if image_type == "dicoms":
         dicom_data = pydicom.dcmread(k)
         mamm = dicom_data.pixel_array.astype(np.float32) / np.max(dicom_data.pixel_array)
     elif image_type == "png":
         mamm = cv2.imread(k).astype(np.float32) / 255
+    print("Image size:",mamm.shape)
+    print("Image type:",mamm.dtype)
 
     if is_white_background(mamm, threshold=128):
         mamm=1-mamm
