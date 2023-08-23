@@ -5,26 +5,25 @@ This project focus on microcalcification detection in mammograms using deep lear
 
 --
 Architecture
---
-* Calc1 folder : Containing the code starting code about microcalcifications detection (not useful). The modified files (useful) are directly at the root of this repository presented below (Python) :
-* 
--> new_core.py : the new core functions to perform the calcification detection
-  
--> auxiliar_function.py : all the others functions: plotting, pre-treatment (post prediction, threshold, ...), labeling, calculating features and MC_locations, metrics, forming clusters with python approaches, ground truth, and saving functions.
+---
+-> Calc1 folder : Containing the code starting code about microcalcifications detection (not useful). The modified files (useful) are directly at the root of this repository presented below (Python) :
+
+* new_core.py : the new core functions to perform the calcification detection
+* auxiliar_function.py : all the others functions: plotting, pre-treatment (post prediction, threshold, ...), labeling, calculating features and MC_locations, metrics, forming clusters with python approaches, ground truth, and saving functions.
 
 
-* Slides folder : Containing all the slides used at the meetings, providing a clear and compact summary of progress
+-> Slides folder : Containing all the slides used at the meetings, providing a clear and compact summary of progress
 
-* HPV folder : Containing the code about clustering and cluster features extraction, the starting code (tailored for nuclei and not microcalcifications) and the modifications apart from it. (MATLAB)
+-> HPV folder : Containing the code about clustering and cluster features extraction, the starting code (tailored for nuclei and not microcalcifications) and the modifications apart from it. (MATLAB)
 
 
-* Publications_used folder : Containing all of the publications considered during this internship
+-> Publications_used folder : Containing all of the publications considered during this internship
 
 
 
 --
 In order to make the code run:
---
+---
 -> Read How_to_run_the_code.pptx at the root of this repository 
 
 -> "CalcificationDetectionAndFeatures.ipynb" directly at the root of this repository can be used as an exemple of use 
@@ -59,7 +58,7 @@ In order to make the code run:
 
 
 
-
+--
 Here is a summary of my work during this internship:
 ---
 
