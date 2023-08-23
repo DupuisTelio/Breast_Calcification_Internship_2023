@@ -6,17 +6,17 @@ This project focus on microcalcification detection in mammograms using deep lear
 --
 Architecture
 --
-** Calc1 folder : Containing the code starting code about microcalcifications detection (not useful). The modified files (useful) are directly at the root of this repository presented below (Python) :
-* new_core.py : the new core functions to perform the calcification detection 
-* auxiliar_function.py : all the others functions: plotting, pre-treatment (post prediction, threshold, ...), labeling, calculating features and MC_locations, metrics, forming clusters with python approaches, ground truth, and saving functions.
+* Calc1 folder : Containing the code starting code about microcalcifications detection (not useful). The modified files (useful) are directly at the root of this repository presented below (Python) :
+** new_core.py : the new core functions to perform the calcification detection 
+** auxiliar_function.py : all the others functions: plotting, pre-treatment (post prediction, threshold, ...), labeling, calculating features and MC_locations, metrics, forming clusters with python approaches, ground truth, and saving functions.
 
 
-** Slides folder : Containing all the slides used at the meetings, providing a clear and compact summary of progress
+* Slides folder : Containing all the slides used at the meetings, providing a clear and compact summary of progress
 
-** HPV folder : Containing the code about clustering and cluster features extraction, the starting code (tailored for nuclei and not microcalcifications) and the modifications apart from it. (MATLAB)
-* run new_gui.m
+* HPV folder : Containing the code about clustering and cluster features extraction, the starting code (tailored for nuclei and not microcalcifications) and the modifications apart from it. (MATLAB)
 
-** Publications_used folder : Containing all of the publications considered during this internship
+
+* Publications_used folder : Containing all of the publications considered during this internship
 
 
 
@@ -61,11 +61,11 @@ In order to make the code run:
 Here is a summary of my work during this internship:
 ---
 
-To begin, my task is after making a little state of the art and understanding the problems involved, making a short presentation about it :
+* To begin, my task is after making a little state of the art and understanding the problems involved, making a short presentation about it :
 
---16/06 presentation diapositive : https://tome.app/staaage/template-product-design-review-clixv8r1s0kwjpf3dv24xw0ma
+* 16/06 presentation diapositive : https://tome.app/staaage/template-product-design-review-clixv8r1s0kwjpf3dv24xw0ma
 
-New objectives:
+* New objectives:
 
 Focus on microcalcification shaped like dots/clusters of dots: detecting them and being able to derive statistics such as the size of these clusters, their shape, the distance separating them, etc. 
 
@@ -74,16 +74,16 @@ In order to achieve this, we start from an existing code for the detection of mi
 Then if I succeed maybe, thanks to a radiologist's diagnoses, to see if it is possible to make a diagnosis based on these characteristics, or at least extracting information from those characteristics.
 
 --- 
-From 16/06 to 03/07:
+* From 16/06 to 03/07:
 
 We have spent most of our time studying the code in order to combine HPV and CALC1, specifically the HPV code, which consists of two steps: the first step performs cell nucleus segmentation using a watershed algorithm (morphology), and the second step performs clustering on the output of the first step using deep learning. 
 We have particularly focused on the inputs and outputs of calc1, HPV step1, and step2.
 
 Based on this, we have considered two solutions. The first solution is to directly use the output image of calc1 as the input for step1. However, this would require adapting the watershed algorithm since the second segmentation is not perfect as it is originally designed for microcalcifications and not cell nuclei. The second solution is to extract the necessary properties from the output image of calc1 ourselves, in order to use this information as input for step2. (more details in the diapositive of 03/07 presentation)
 
---03/07 presentation diapositive on the repository
+* 03/07 presentation diapositive on the repository
 
-New objectives proposed:
+* New objectives proposed:
 
 Firstly, superimpose the clusters detected using the first proposed approach onto the mammogram images.
 Next, attempt to form clusters in a simple manner, such as by considering the distance separating the microcalcifications, without utilizing the HPV code.
@@ -92,7 +92,7 @@ Conduct a study on radiomic properties and establish my own list of properties f
 
 
 --- 
-From 03/07 to 17/07:
+* From 03/07 to 17/07:
 
 Some new publications have been found and studied but none of great interest for our specific case
 
@@ -102,9 +102,9 @@ Also a new simple way to form clusters based on distance and pre-fixed numbers o
 
 Furthermore, progress has been on made on establishing an equivalent (in python) characteristics list for solution 2 (beginning directly with step 2 of HPV).
 
---17/07 presentation diapositive on the repository
+* 17/07 presentation diapositive on the repository
 
-New objectives proposed:
+* New objectives proposed:
 
   Have a deeper look to CALC1 model to study the impact of the threshold for the prediction (lower -> more areas detected) and how they determine it for their specific dataset (try to tailor to our CardioCare Dataset)
 
@@ -114,7 +114,7 @@ New objectives proposed:
 
 --- 
 
-From 17/07 to 28/07:
+* From 17/07 to 28/07:
 
 A deeper study of CALC1 has been made to prove that the output is definitely a probablity of MC and the use of a threshold is only made after for the plots (so adding a threshold is justified in our case to  have a binary output, and this threshold is a bit lower than the one they put as an init value for their plot so more MC area can be found).
 
@@ -128,9 +128,9 @@ Now we should try to find a way to take the clusters in matlab (output of HPV/Fe
 
 Made a script to turn the dicoms dataset in png, but didn't try yet with this dataset
 
---28/07 presentation diapositive on the repository
+* 28/07 presentation diapositive on the repository
 
-New objectives proposed:
+* New objectives proposed:
 
   Try with dicoms dataset, and ddsm dataset, IN breast dataset (clusters and ground truth) to compare ground truth, with the model
 -> ddsm, IN breast dataset :https://forthgr-my.sharepoint.com/:p:/g/personal/stamoulou_ics_forth_gr/EU4_Whd_lbhNtbBXvdNKpQwBOCTt12mon0iAgw5qCCYEqg?e=wFbkxC
@@ -149,7 +149,7 @@ Maybe start working on a script to make the whole process easier of access
 
  --- 
 
-From 29/07 to 04/08:
+* From 29/07 to 04/08:
 
 2 news datasets (Cardiocare and INbreast) have been used to try the second solution on. Pretty convenient results, still need to compare with ground truth.
 
@@ -163,9 +163,9 @@ A deeper study of the parameters on which we perform the clustering, which are r
 
 Advance on exctracting matlab output but not finished yet.
 
---04/08 presentation diapositive on the repository
+* 04/08 presentation diapositive on the repository
 
-New objectives proposed:
+* New objectives proposed:
 
 Change the functions to save MC_locations and properties in the specific format of INbreast, and respecting George code's input (row to row ): each row a MC, patient_ID, extra-information,...
 
@@ -181,7 +181,7 @@ Find a way to evaluate the performance
 
  --- 
 
-From 05/08 to 09/08:
+* From 05/08 to 09/08:
 
 Only 2 days (monday and tuesday 07-08/08) because of the weekend, so not so much advances there regarding the last objective settled.
 
@@ -200,9 +200,9 @@ Advance on adaptation of matlab outputs
 Problems with high-breast density mammogram (INbreast)
 
 
---09/08 presentation diapositive on the repository
+* 09/08 presentation diapositive on the repository
 
-New objectives proposed:
+* New objectives proposed:
 
 Smalls change on the saving function for the table ( Patient_id -> file_name, Add number of mc, add extra_information), send a table with 5 patients to George so that he can use it as an input of his code 
   
