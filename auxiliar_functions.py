@@ -203,6 +203,66 @@ def pre_treatment(prediction,threshold_value,fill_holes):
 
 
 
+#####################################################################################
+"Ground truth and score function"
+#####################################################################################
+## You should put the corresponding XML (INbreath) and .ROI file in the corresponding folder (directory_path_ground_truth)
+# after running the previously implemented function : Making_the_folder_path
+## The functions below are tailored to work with those specific format implemented in those 2 files, be aware that if the 
+# format is changed, the functions will need to be adapted
+def Ground_truth_reading_INbreast_XML_file(directory_path_ground_truth,file_name,shape_init,left_transpose,act_w):
+    # Path
+    Path_INbreast_ground_truth = os.path.join(directory_path_ground_truth,"INbreast")
+    Path_ground_truth_file = os.path.join(Path_INbreast_ground_truth,file_name)
+
+    # Initialization
+    im_xml = np.zeros((shape_init)) # carefull with dimensions (inversed because XML file probably made for MATLAB)
+    ROI_id=0
+    number_of_mc=0
+
+    # Parsing with minidom library
+    doc = minidom.parse(Path_ground_truth_file)
+
+    # Looking for the list of ROI
+    dict_elements = doc.getElementsByTagName("dict")
+    list_of_ROI = dict_elements[2:] # we skip the first two <dict> because of the structure of INbreath XML file
+
+    for ROI in list_of_ROI: #  For each ROI of the file
+        string_elements = ROI.getElementsByTagName("string")
+        ROI_id+=1
+        ROI_type=string_elements[1] # the second string correspond to the type of the ROI 
+        
+        if ROI_type.firstChild and ROI_type.firstChild.data == "Calcification": # if it's indeed a MC
+
+            number_of_mc+=1
+            array_elements = ROI.getElementsByTagName("array")
+            points_of_one_MC=array_elements[1] # the second array correspond to the points of the MC
+            
+            for string_element in points_of_one_MC.getElementsByTagName("string"): # All the coordinates of the points of the MC
+                point_data = string_element.firstChild.data # getting the data
+
+                # print("Point Data for ROI", ROI_id,"MC:",number_of_mc, ":", point_data)
+                lpixels =  (point_data[1:-1].split(',')) # split for the format
+
+                # coordinates float
+                #print (float(lpix[0]),float(lpix[1]) )
+                ix = int (float(lpixels[0]) )
+                iy = int (float(lpixels[1]) )
+                im_xml[iy, ix]   = 255
+
+
+    # same transformation as on the mammogram (transpose and cut)
+    if left_transpose :
+        im_xml[:, :] = im_xml[:, ::-1]
+
+    im_xml = cut_mamm(im_xml, act_w)  # warning used the act_w of the mamm
+
+
+    return im_xml,number_of_mc,ROI_id
+
+
+
+
 
 #####################################################################################
 "Calculating characteristics"
@@ -511,7 +571,126 @@ def Trying_python_clusterisation(clustering_choice,binary_image,n_clusters=5,eps
 "Calculating metrics (AMD, Mc_IN,...)"
 #####################################################################################
 
+# AMD = = Average minimal distance
+# Mc_IN = Number of MC given in a circle given a radius R
 
+# Calculate the minimal distance between 1 MC with all the others MC, border-border
+def calculate_minimal_distance_for_1_MC(labeled_image, region_label_1):
+    # Boolean mask of the targeted MC (1) and the rest of MC
+    region_1 = labeled_image == region_label_1
+    other_regions = (labeled_image != region_label_1)*(labeled_image>0)
+
+    # Find borders
+    boundary_1 = skimage.segmentation.find_boundaries(region_1, mode='inner') #outer for 4 neighboors, inner for 8 neighboors
+    other_boundaries = skimage.segmentation.find_boundaries(other_regions, mode='inner')
+
+    # Maps of distance from the boundary of first MC
+    distance_map = scipy.ndimage.distance_transform_edt(~boundary_1)
+    # Find the minimal distance with the closest MC to boundary_1
+    distance_between_boundaries = distance_map[other_boundaries].min()
+
+    return distance_between_boundaries
+
+# Calculate the AMD among all MC of the image, border-border
+def calculate_AMD_between_MC(binary_image,print_advance):
+    current_time=time.time()
+    labeled_image = skimage.measure.label(image)
+    numbers_of_MC=np.amax(labeled_image)
+    mean_of_min=0
+    for label_index in range(0,numbers_of_MC):
+        mean_of_min+=calculate_minimal_distance_for_1_MC(labeled_image,label_index+1)
+        if time.time()-current_time>10 and print_advance:
+          current_time=time.time()
+          print('{}% done'.format(label_index*100//numbers_of_MC))
+    mean_of_min=mean_of_min/numbers_of_MC
+    return mean_of_min
+
+# Calculate the AMD inside 1 specific cluster of the image, border-border
+def calculate_AMD_between_MC_of_a_specific_cluster(clustering_labels,binary_image,index_cluster_of_interest):
+    mean_of_min_of_specific_cluster=0
+    binary_image_of_specific_cluster = np.zeros_like(binary_image) #copy
+    for i, label in enumerate(clustering_labels): # set the pixels of the calcifications not belonging to cluster_of_interest to 0
+        if label == index_cluster_of_interest:
+          y, x = regions[i]
+          binary_image_of_specific_cluster[y, x] = 1
+    mean_of_min_of_specific_cluster+=calculate_AMD_between_MC(binary_image_of_specific_cluster,False)
+    return mean_of_min_of_specific_cluster
+
+# Calculate the average AMD inside each cluster of the images, border-border
+def calculate_AMD_between_MC_inside_clusters(clustering_labels,binary_image):
+    regions = np.argwhere(binary_image == 1)
+    number_of_cluster=max(clustering_labels)+1 #max+1 in fact but cluster index start from 0
+    mean_of_min=0
+    for index_cluster_of_interest in range(0,number_of_cluster):
+        mean_of_min+=calculate_AMD_between_MC_of_a_specific_cluster(clustering_labels,binary_image,index_cluster_of_interest)
+        print(f"Cluster done:{index_cluster_of_interest+1}/{number_of_cluster}, (the speed isn't continuous because of the size difference between clusters)")
+    return mean_of_min/number_of_cluster
+
+
+## Clusters AMD
+def calculate_minimal_distance_between_2_clusters(binary_image, cluster1_indices, cluster2_indices):
+    cluster1_mask = np.isin(binary_image, cluster1_indices)
+    cluster2_mask = np.isin(binary_image, cluster2_indices)
+
+    boundary_cluster1 = skimage.segmentation.find_boundaries(cluster1_mask, mode='inner')
+    boundary_cluster2 = skimage.segmentation.find_boundaries(cluster2_mask, mode='inner')
+
+    if np.count_nonzero(boundary_cluster1) == 0 or np.count_nonzero(boundary_cluster2) == 0:
+        return None  # Skip calculation if one of the clusters has no boundaries
+
+    distance_map_cluster1 = scipy.ndimage.distance_transform_edt(~boundary_cluster1)
+    distance_between_boundaries = distance_map_cluster1[boundary_cluster2].min()
+
+    return distance_between_boundaries
+
+def calculate_pairwise_AMD_between_clusters(clustering_labels, binary_image):
+    number_of_clusters = max(clustering_labels) + 1
+    mean_of_min = 0
+    pair_count = 0
+
+    for cluster1_index in range(number_of_clusters):
+        for cluster2_index in range(cluster1_index + 1, number_of_clusters):  # Compare different clusters
+            cluster1_indices = np.where(clustering_labels == cluster1_index)[0]
+            cluster2_indices = np.where(clustering_labels == cluster2_index)[0]
+            AMD_between_clusters = calculate_minimal_distance_between_2_clusters(binary_image, cluster1_indices, cluster2_indices)
+            if AMD_between_clusters is not None:
+                mean_of_min += AMD_between_clusters
+                pair_count += 1
+
+    if pair_count > 0:
+        mean_of_min /= pair_count  # Calculate the average for all pairs of clusters
+
+    return mean_of_min
+
+# Calculate the MC_in for 1 specific MC
+def count_MC_in_radius_for_a_specific_MC(binary_image, MC_index, radius,label_already_calculated):
+    if label_already_calculated:
+      labeled_image=binary_image
+    else :
+      labeled_image=skimage.measure.label(binary_image)
+    regions = skimage.measure.regionprops(labeled_image)
+    y1, x1 = regions[MC_index - 1].centroid  # index - 1 because indexing start at 1
+
+    count = 0
+    for i, region in enumerate(regions):
+        if i == MC_index - 1:
+            continue  # Ignore the MC itself
+
+        y2, x2 = region.centroid
+        distance = np.sqrt((x2 - x1)**2 + (y2 - y1)**2)
+        if distance <= radius:
+            count += 1
+
+    return count
+
+# Calculate the MC_in for each MC of the image
+def count_Mc_IN_general(binary_image,radius):
+    labeled_image = skimage.measure.label(image)
+    numbers_of_MC=np.amax(labeled_image)
+    Sum=0
+    for MC_index in range(0,numbers_of_MC):
+        Sum+=count_MC_in_radius_for_a_specific_MC(labeled_image, MC_index, radius,True)
+    return Sum/numbers_of_MC
 
 
 
@@ -557,3 +736,20 @@ def transforming_Dicoms_folder_to_png(input_folder,output_folder):
         else:
             print(f"The file {filename} isn't .dcm")  
 
+
+
+
+
+
+
+#####################################################################################
+"new_core functions used there"
+#####################################################################################
+def cut_mamm(mamm, act_w):
+    h = mamm.shape[0]
+        # mamm[k] = v[:h - (h % 16), :act_w + (-act_w % 16)]
+    mamm = mamm[:h, :act_w]
+
+    # assert mamm['mamm'].shape[0] % 16 == mamm['mamm'].shape[1] % 16 == 0
+
+    return mamm
