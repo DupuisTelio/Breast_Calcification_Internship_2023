@@ -214,3 +214,40 @@ Receive a part of DDSM dataset loaded by Grigorios (thanks) on a more powerfull 
 Breast density inBreast -> threshold ?
 
 
+
+ --- 
+
+* From 10/08 to 21/08:
+
+Changes on the saving function, a table with 6 patients has been sent to Georges
+
+Start working on ground truth files.
+
+Convincing test on DDSM dataset, problems -> no ground truth associated?
+Other convincing test on INbreast ! 
+
+New function to read specific INbreast xml ground truth file and subplot to compare with detected MC -> still problems reading, mass area are also subploted (not a real problem to validate with the plots and the bare-eye but problematic to make a "score-function")
+
+Advance on extracting Matlab features: a function that store the FeDeG statistics in a csv table apart. -> still need to save clusters index
+
+New threshold tried but nothing convincing.
+
+
+* 21/08 presentation diapositive on the repository
+
+* New objectives proposed:
+
+Remove the area of INbreast ground truth while reading it, try to only read MC locations from the file
+
+Receive DDSM ground truth from Elisaveth and try to read it and use it
+
+Make a score function
+
+Advance on threshold 
+
+Advance on extracting clusters index from HPV
+
+Make a presentation on how to run the code (jupyter, .pptx, top of this README) and clean/comment the whole code so that everyone can use it 
+
+
+
