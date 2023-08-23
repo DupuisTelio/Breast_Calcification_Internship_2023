@@ -7,7 +7,9 @@ This project focus on microcalcification detection in mammograms using deep lear
 Architecture
 --
 * Calc1 folder : Containing the code starting code about microcalcifications detection (not useful). The modified files (useful) are directly at the root of this repository presented below (Python) :
--> new_core.py : the new core functions to perform the calcification detection 
+* 
+-> new_core.py : the new core functions to perform the calcification detection
+  
 -> auxiliar_function.py : all the others functions: plotting, pre-treatment (post prediction, threshold, ...), labeling, calculating features and MC_locations, metrics, forming clusters with python approaches, ground truth, and saving functions.
 
 
