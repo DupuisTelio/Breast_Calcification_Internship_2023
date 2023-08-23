@@ -3,15 +3,58 @@ Here is the repository containing the code and diapositives I worked on during m
 
 This project focus on microcalcification detection in mammograms using deep learning models, and features extraction from those detected microcalcifications. 
 
-** Calc1 folder : Containing the code about microcalcifications detection, the starting code and the modifications apart from it
+--
+Architecture
+--
+** Calc1 folder : Containing the code starting code about microcalcifications detection (not useful). The modified files (useful) are directly at the root of this repository presented below (Python) :
+* new_core.py : the new core functions to perform the calcification detection 
+* auxiliar_function.py : all the others functions: plotting, pre-treatment (post prediction, threshold, ...), labeling, calculating features and MC_locations, metrics, forming clusters with python approaches, ground truth, and saving functions.
+
 
 ** Slides folder : Containing all the slides used at the meetings, providing a clear and compact summary of progress
 
-** HPV folder : Containing the code about features extraction, the starting code (tailored for nuclei and not microcalcifications) and the modifications apart from it
+** HPV folder : Containing the code about clustering and cluster features extraction, the starting code (tailored for nuclei and not microcalcifications) and the modifications apart from it. (MATLAB)
+* run new_gui.m
 
 ** Publications_used folder : Containing all of the publications considered during this internship
 
-In order to make the code run, you need to run "CalcificationDetectionTelio.ipynb" from Calc1 folder then "HPV_step1and2.m" from HPV folder on the output image of the jupyter code.
+
+
+--
+In order to make the code run:
+--
+-> Read How_to_run_the_code.pptx at the root of this repository 
+
+-> "CalcificationDetectionAndFeatures.ipynb" directly at the root of this repository can be used as an exemple of use 
+
+-> Or follow the instructions below :
+- Python -
+0) (Optionnal) Make a clean folder configuration to store the inputs and outputs with : Making_the_folder_path 
+1) First load a mammogram (png or dicom ) with the python code : load_mamm 
+2) Then perform the detection and post-processing : predict and pre_treatment 
+3) Label the binarised image with : labeling 
+4) Calculate the MC_locations_for_HPV and features_list_for_HPV and stock under a specific format : Calculating_characteristics_and_MC_locations_for_HPV 
+5) Save images, MC locations and features for HPV with (txt and png format for the moment) : Saving_characteristics_HPV_format and Saving_images_used_and_produced
+
+- MATLAB -
+6) From the last saved data, use either processed_mamm, or prediction, or binary_image (their are only used for the visualization so it doesn't matter which one you are using ) and both MC_locations_for_HPV and features_list_for_HPV as an entry of New_GUI.m or HPV_step1&2.m
+7) Perform the clustering you desire, (select the parameters on GUI or HPV_step1&2) and save the data
+  
+- Python -
+8) Load the clustering data calculated with HPV with :
+9) Calculate the metrics you want on it with (can also be calculated doing steps: 1-2-10-9): all the metrics function indicated in auxiliar_functions.py
+
+- Optionnal on python -
+10) Forming clusters with python approaches (directly after step 2): Trying_python_clusterisation
+11) Saving data in a specifically formated csv table (Cardiocare) with possibility of adding extra-data in the case of INbreast mammogram (you need to add INbreast metadata csv table in the corresponding folder made with step 0) : Formating_Saving_Mc_Information
+12) Transform a whole dicoms datafolder to png (not really usefull and recommended, moreover the python code is adapted to dicoms now ): transforming_Dicoms_folder_to_png
+13) Read and compare with Ground truth (you need to add the corresponding ground truth file in the corresponding folder made with step 0) : Ground_truth_reading_INbreast_XML_file
+14) All the plots functions hadn't been described here but can be found in auxiliar_functions.py
+
+
+
+
+
 
 
 
