@@ -54,6 +54,14 @@ In order to make the code run:
 
 
 
+--
+Databases
+---
+1) The beginning of the code has been made with the mammogram image available on https://github.com/roeez/CalcificationDetection/tree/main
+2) Then INbreast dataset has been mostly used :
+3) Also DDSM dataset : https://wiki.cancerimagingarchive.net/pages/viewpage.action?pageId=22516629#2251662935562334b1e043a3a0512554ef512cad
+4) Some mammograms of the Cardiocare project
+5) Elisaveth summary : https://forthgr-my.sharepoint.com/:p:/g/personal/stamoulou_ics_forth_gr/EU4_Whd_lbhNtbBXvdNKpQwBOCTt12mon0iAgw5qCCYEqg?e=wFbkxC
 
 
 
