@@ -30,7 +30,7 @@ In order to make the code run:
 
 -> Or follow the instructions below :
 - Python -
-0) (Optionnal) Make a clean folder configuration to store the inputs and outputs with : Making_the_folder_path 
+0) (Optionnal) Make a clean folder configuration to store the inputs and outputs of python with : Making_the_folder_path 
 1) First load a mammogram (png or dicom ) with the python code : load_mamm 
 2) Then perform the detection and post-processing : predict and pre_treatment 
 3) Label the binarised image with : labeling 
@@ -38,6 +38,7 @@ In order to make the code run:
 5) Save images, MC locations and features for HPV with (txt and png format for the moment) : Saving_characteristics_HPV_format and Saving_images_used_and_produced
 
 - MATLAB -
+0 bis) Make a clean folder configuration to store the inputs and outputs of Matlab code with : HPV_making_path.m / and store the data you want to use in the corresponding "input" folder
 6) From the last saved data, use either processed_mamm, or prediction, or binary_image (their are only used for the visualization so it doesn't matter which one you are using ) and both MC_locations_for_HPV and features_list_for_HPV as an entry of New_GUI.m or HPV_step1&2.m
 7) Perform the clustering you desire, (select the parameters on GUI or HPV_step1&2) and save the data
   
