@@ -72,23 +72,14 @@ def Making_the_folder_path(Main_folder_path):
 #####################################################################################
 "Plotting functions"
 #####################################################################################
-def checking_loaded_mamm(processed_mamm):
+def checking_image(image):
     #check
-    print("Image size:",processed_mamm.shape)
-    print("Image type:",processed_mamm.dtype)
+    print("Image size:",image.shape)
+    print("Image type:",image.dtype)
 
     #plot
     plt.figure()
-    plt.imshow(processed_mamm,cmap = plt.cm.gray)
-
-def checking_prediction(prediction):
-    #check
-    print("Image size:",prediction.shape)
-    print("Image type:",prediction.dtype)
-
-    # plot
-    plt.figure()
-    plt.imshow(prediction,cmap = plt.cm.gray)
+    plt.imshow(image,cmap = plt.cm.gray)
 
 def checking_everything_until_labels(processed_mamm,prediction,binary_image,label_image):
     plt.close('all')
@@ -214,6 +205,22 @@ def subplot_ground_truth_and_detection_on_mamm(processed_mamm,im_xml,binary_imag
     plt.show()
 
 
+def plotting_Cluster_from_HPV_on_mamm(processed_mamm,mc_indices,x_coords,y_coords):
+
+  # Create a dictionnary for each cluster
+  cluster_coords = {}
+  for mc_index, x, y in zip(mc_indices, x_coords, y_coords):
+      if mc_index not in cluster_coords:
+          cluster_coords[mc_index] = {'x': [], 'y': []}
+      cluster_coords[mc_index]['x'].append(x)
+      cluster_coords[mc_index]['y'].append(y)
+
+  # Plotting
+  plt.imshow(processed_mamm)
+  for mc_index, coords in cluster_coords.items():
+        plt.plot(coords['x'], coords['y'], '.', markersize=1, label=f'MC {mc_index}', alpha=0.5)
+  plt.title("Clusters made with HPV (matlab code) on mammogram")
+  plt.show()
 
 
 
@@ -233,8 +240,6 @@ def Histogram_and_choosing_threshold_value(prediction):
 
     # Basic
     #bins=50
-
-    print("Threshold value:",bins)
 
     # Ploting hist
     plt.hist(prediction, bins=bins)
@@ -266,6 +271,20 @@ def pre_treatment(prediction,threshold_value,fill_holes):
     return prediction_modified,binary_image
 
 
+
+# A function used to search a new threshold and also for the score function
+def binarisation_labeling_and_computation(prediction, threshold):
+  #Binarisation
+  _, binary_prediction = pre_treatment(prediction,threshold,False)
+
+  # Labeling
+  label_binary_prediction = labeling(binary_prediction)
+  nc_binary_prediction = label_binary_prediction.max()
+
+  # properties computation
+  props_prediction = skimage.measure.regionprops(label_binary_prediction,prediction)
+
+  return label_binary_prediction,nc_binary_prediction,props_prediction,binary_prediction
 
 
 
@@ -323,11 +342,107 @@ def Ground_truth_reading_INbreast_XML_file(directory_path_ground_truth,file_name
 
     im_xml = cut_mamm(im_xml, act_w)  # warning used the act_w of the mamm
 
-
     return im_xml,number_of_mc,ROI_id
 
 
+def post_treatment_ground_truth_INbreast(im_xml,radius):
+    # Structuring element: disk radius -> Be carefull, to big might make 2 MC merge
+    d = skimage.morphology.disk(radius=radius)
 
+    # Binary dilatation
+    im_xml_dil = skimage.morphology.binary_dilation(im_xml, footprint=d, out=None) * 1
+
+    # Filled holes, can also use scipy.ndimage.binary_fill_holes
+    im_xml_dil_filled = skimage.morphology.remove_small_holes(im_xml_dil, area_threshold=64) * 1
+
+    # Binary erosion
+    im_xml_dil_filled_ero = skimage.morphology.binary_erosion(im_xml_dil_filled, footprint=d, out=None) * 1
+
+    # Value we want: 1, 255, ...
+    im_xml_cor = 1 * im_xml_dil_filled_ero
+
+    treated_xml_image = skimage.measure.label(im_xml_cor)
+    print("New number of MC (to compare with the old one, should be the same or reduce radius) :",treated_xml_image.max())
+    return treated_xml_image
+
+
+
+# a score function that estimates the number of commun MC shared by the prediction and the ground truth given a radius around those MC
+def score_function(ground_truth_image,prediction,accuracy_radius):
+    # dilatations for adaptative accuracy, be carefull to high radius might result in merging MC
+    if accuracy_radius>0:
+      # radius
+      disk_radius = skimage.morphology.disk(radius = accuracy_radius)
+      # binary dilatation
+      GT_image_dilated = skimage.morphology.binary_dilation(ground_truth_image, footprint=disk_radius, out=None)*1
+    else:
+      GT_image_dilated=ground_truth_image
+
+    # Binarisation low threshold
+    label_binary_prediction,nc_binary_prediction,props_prediction,binary_prediction=binarisation_labeling_and_computation(prediction, threshold=0.5)
+    
+    # properties computation
+    props_GT = skimage.measure.regionprops(label_binary_prediction,GT_image_dilated)
+
+    # analysis of MC properties
+    count_mc_only = 0
+    count_mc_GT = 0
+
+    pmean_liste_mc_only = []
+    pmean_liste_mc_GT = [] 
+
+    for region_prediction, region_GT in zip(props_prediction, props_GT)  :
+        val = region_GT.intensity_max
+        pr = region_prediction.intensity_mean
+        if val >= 1 :  # intersection with Grount TRUTH GT
+            count_mc_GT += 1
+            pmean_liste_mc_GT.append(pr)
+        else : # no intersection     
+            pmean_liste_mc_only += 1
+            pmean_liste_mc_only.append(pr)
+            
+
+    # then we label GT image and analyse each mc
+    label_GT = labeling(GT_image_dilated)
+    nc_GT = label_GT.max()
+    props_prediction_GT = skimage.measure.regionprops(label_GT,binary_prediction)
+
+    # analysis of MC porperties
+    count_GT_only = 0
+    count_GT_mc = 0
+
+    for regionp in props_prediction_GT  :
+        val = regionp.intensity_max
+        if val == 1 :  #intersection with mc
+            count_GT_mc += 1
+        else : # no intersection     
+            count_GT_only += 1
+
+    print ("\n")        
+    print ("Number of MC in the binary prediction  : " ,nc_binary_prediction)
+    print ("_____nb of MC detected in the prediction intersected with at least 1 Ground truth MC " , count_mc_GT, " proba %.3f " % np.array(pmean_liste_mc_only).mean())
+    print ("_____nb of MC detected in the prediction only " , count_mc_only, " proba %.3f " % np.array(pmean_liste_mc_only).mean())
+
+    print ("\n")
+    print ("Number of MC in the Ground truth image after (optional) dilatation  : " ,nc_GT)
+    print ("_____nb of Ground truth MC intersected with at least 1 MC detected in the prediction" , count_GT_mc)  
+    print ("_____nb of Ground truth MC only " , count_GT_only)
+
+    return count_mc_GT,count_mc_only,count_GT_mc,count_GT_only,nc_binary_prediction,nc_GT
+
+
+
+# Not used anymore because too "naive", because of too much 0 values that are actually the same
+def naive_score_function(ground_truth_image,binary_image):
+  number_of_right_pixels=np.sum(binary_image==ground_truth_image)
+  shape=np.shape(binary_image)
+  number_of_pixel=shape[0]*shape[1]
+
+  percentage=(number_of_right_pixels / number_of_pixel) * 100
+  print("Score :",number_of_right_pixels,"/",number_of_pixel," so :",round(percentage,3),"% accuracy!")
+
+  return percentage
+  
 
 
 
@@ -587,6 +702,27 @@ def Formating_Saving_Mc_Information(directory_path_MC_table,file_name,patient_id
 #####################################################################################
 "Loading cluster and FeDeG statistics from HPV (Matlab code)"
 #####################################################################################
+def reading_Cluster_from_HPV(table_name,directory_path_features_from_HPV):
+  # Making the path
+  table_name=table_name+'.csv'
+  directory_path_table=os.path.join(directory_path_features_from_HPV,table_name)
+
+  # Reading data from the csv table
+  data = []
+  with open(directory_path_table, 'r') as csv_file:
+      csv_reader = csv.reader(csv_file)
+      next(csv_reader)  # Skip the headline
+      for row in csv_reader:
+          data.append(row)
+
+  # Convert data in numpy array
+  data = np.array(data, dtype=float)
+  # Extract index and coordinates
+  mc_indices = data[:, 0].astype(int)
+  x_coords = data[:, 2]
+  y_coords = data[:, 3]
+  return mc_indices,x_coords,y_coords
+
 
 
 
@@ -639,7 +775,7 @@ def Trying_python_clusterisation(clustering_choice,binary_image,n_clusters=5,eps
 "Calculating metrics (AMD, Mc_IN,...)"
 #####################################################################################
 
-# AMD = = Average minimal distance
+# AMD =  Average minimal distance
 # Mc_IN = Number of MC given in a circle given a radius R
 
 # Calculate the minimal distance between 1 MC with all the others MC, border-border
@@ -674,7 +810,7 @@ def calculate_AMD_between_MC(binary_image,print_advance):
     return mean_of_min
 
 # Calculate the AMD inside 1 specific cluster of the image, border-border
-def calculate_AMD_between_MC_of_a_specific_cluster(clustering_labels,binary_image,index_cluster_of_interest):
+def calculate_AMD_between_MC_of_a_specific_cluster(clustering_labels,binary_image,index_cluster_of_interest,regions):
     mean_of_min_of_specific_cluster=0
     binary_image_of_specific_cluster = np.zeros_like(binary_image) #copy
     for i, label in enumerate(clustering_labels): # set the pixels of the calcifications not belonging to cluster_of_interest to 0
@@ -690,7 +826,7 @@ def calculate_AMD_between_MC_inside_clusters(clustering_labels,binary_image):
     number_of_cluster=max(clustering_labels)+1 #max+1 in fact but cluster index start from 0
     mean_of_min=0
     for index_cluster_of_interest in range(0,number_of_cluster):
-        mean_of_min+=calculate_AMD_between_MC_of_a_specific_cluster(clustering_labels,binary_image,index_cluster_of_interest)
+        mean_of_min+=calculate_AMD_between_MC_of_a_specific_cluster(clustering_labels,binary_image,index_cluster_of_interest,regions)
         print(f"Cluster done:{index_cluster_of_interest+1}/{number_of_cluster}, (the speed isn't continuous because of the size difference between clusters)")
     return mean_of_min/number_of_cluster
 
