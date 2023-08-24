@@ -41,21 +41,31 @@ def testing_or_making_path(folder_path):
 def Making_the_folder_path(Main_folder_path):
     testing_or_making_path(Main_folder_path)
     
-    directory_path_ground_truth = os.path.join(Main_folder_path,"Ground_truth")
     directory_path_dicoms_to_png_inputs = os.path.join(Main_folder_path,"Dicoms_input_folder")
     directory_path_dicoms_to_png_outputs = os.path.join(Main_folder_path,"Dicoms_input_folder")
     directory_path_img = os.path.join(Main_folder_path,"Saved_Images")
     directory_path_characteristics_for_HPV = os.path.join(Main_folder_path,"Saved_characteristics")
     directory_path_MC_table = os.path.join(Main_folder_path,"MC_table")
 
-    testing_or_making_path(directory_path_ground_truth)
+    directory_path_ground_truth = os.path.join(Main_folder_path,"Ground_truth")
+    directory_path_ground_truth_INbreast = os.path.join(directory_path_ground_truth,"INreast")
+    directory_path_ground_truth_DDSM= os.path.join(directory_path_ground_truth,"DDSM")
+
+    directory_path_features_from_HPV = os.path.join(Main_folder_path,"Features_from_HPV")
+
     testing_or_making_path(directory_path_dicoms_to_png_inputs)
     testing_or_making_path(directory_path_dicoms_to_png_outputs)
     testing_or_making_path(directory_path_img)
     testing_or_making_path(directory_path_characteristics_for_HPV)
     testing_or_making_path(directory_path_MC_table)
+
+    testing_or_making_path(directory_path_ground_truth)
+    testing_or_making_path(directory_path_ground_truth_INbreast)
+    testing_or_making_path(directory_path_ground_truth_DDSM)
+
+    testing_or_making_path(directory_path_features_from_HPV)
     
-    return directory_path_ground_truth, directory_path_dicoms_to_png_inputs, directory_path_dicoms_to_png_outputs, directory_path_img, directory_path_characteristics_for_HPV,directory_path_MC_table
+    return directory_path_ground_truth, directory_path_dicoms_to_png_inputs, directory_path_dicoms_to_png_outputs, directory_path_img, directory_path_characteristics_for_HPV,directory_path_MC_table,directory_path_features_from_HPV
                                 
 
 
@@ -127,8 +137,10 @@ def plotting_Mc_treated_for_HPV(processed_mamm,label_image):
 
 
 def plotting_different_python_clusterisation(clustering_choice,clustering_labels,regions,processed_mamm,binary_image):
+    n_clusters=num_clusters = len(set(clustering_labels))
+
     plt.imshow(processed_mamm)
-    plt.scatter(regions[:, 1], regions[:, 0], c=labels_agglo, cmap='hot', s=1)
+    plt.scatter(regions[:, 1], regions[:, 0], c=clustering_labels, cmap='hot', s=1)
 
     # Invert axes to adapt to the mammogram plot
     plt.gca().invert_yaxis()
@@ -148,6 +160,60 @@ def plotting_different_python_clusterisation(clustering_choice,clustering_labels
     plt.ylabel('Y')
     plt.title('Superposition of calcifications on the mammogram')
     plt.show()
+
+
+def plotting_Ground_truth(processed_mamm,im_xml,binary_image,dilatation_radius):
+    # for display purposes, the pixels found are dilated
+    dd = skimage.morphology.disk(radius = dilatation_radius)
+
+    # Dilatation
+    im_xml_display = skimage.morphology.binary_dilation(im_xml, footprint=dd, out=None)*1
+    binary_image_display = skimage.morphology.binary_dilation(binary_image, footprint=dd, out=None)*1
+
+    # Plots
+    plt.figure()
+    plt.imshow(im_xml_display , cmap = plt.cm.gray)
+    plt.title("Ground truth mask dilated")
+
+    plt.figure()
+    plt.imshow(binary_image_display , cmap = plt.cm.gray)
+    plt.title("Detected mask dilated")
+
+    plt.figure()
+    plt.imshow(im_xml_display + processed_mamm , cmap = plt.cm.gray)
+    plt.title("Ground truth dilated subploted on the mammogram")
+
+    plt.figure()
+    plt.imshow( processed_mamm , cmap = plt.cm.gray)
+    alphaTab = im_xml_display.astype(np.float32)
+    plt.imshow(im_xml_display ,alpha = alphaTab)
+    plt.title("Ground truth dilated subploted colored on the mammogram")
+
+
+def subplot_ground_truth_and_detection_on_mamm(processed_mamm,im_xml,binary_image,dilatation_radius,ground_truth_tranparency,detection_transparency):
+    # for display purposes, the pixels found are dilated
+    dd = skimage.morphology.disk(radius = dilatation_radius)
+
+    # Dilatation
+    im_xml_display = skimage.morphology.binary_dilation(im_xml, footprint=dd, out=None)*1
+    binary_image_display = skimage.morphology.binary_dilation(binary_image, footprint=dd, out=None)*1
+
+    # Creating a composite image using RGB colour channels
+    composite_image = np.zeros((processed_mamm.shape[0], processed_mamm.shape[1], 3), dtype=np.float32)
+
+    # Red canal (XML image)
+    composite_image[:, :, 0] = processed_mamm + (im_xml_display * ground_truth_tranparency)
+
+    # Green canal (Binary image)
+    composite_image[:, :, 1] = processed_mamm + (binary_image_display * detection_transparency)
+
+    # Show composite image
+    plt.figure()
+    plt.imshow(composite_image)
+    plt.title("Ground truth (green) and detected MC (red) subploted on the mammogram")
+    plt.show()
+
+
 
 
 
@@ -206,7 +272,7 @@ def pre_treatment(prediction,threshold_value,fill_holes):
 #####################################################################################
 "Ground truth and score function"
 #####################################################################################
-## You should put the corresponding XML (INbreath) and .ROI file in the corresponding folder (directory_path_ground_truth)
+## You should put the corresponding XML (INbreast) and .ROI file in the corresponding folder (directory_path_ground_truth)
 # after running the previously implemented function : Making_the_folder_path
 ## The functions below are tailored to work with those specific format implemented in those 2 files, be aware that if the 
 # format is changed, the functions will need to be adapted
@@ -225,7 +291,7 @@ def Ground_truth_reading_INbreast_XML_file(directory_path_ground_truth,file_name
 
     # Looking for the list of ROI
     dict_elements = doc.getElementsByTagName("dict")
-    list_of_ROI = dict_elements[2:] # we skip the first two <dict> because of the structure of INbreath XML file
+    list_of_ROI = dict_elements[2:] # we skip the first two <dict> because of the structure of INbreast XML file
 
     for ROI in list_of_ROI: #  For each ROI of the file
         string_elements = ROI.getElementsByTagName("string")
@@ -259,6 +325,8 @@ def Ground_truth_reading_INbreast_XML_file(directory_path_ground_truth,file_name
 
 
     return im_xml,number_of_mc,ROI_id
+
+
 
 
 
