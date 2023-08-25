@@ -7,7 +7,7 @@ import scipy
 import time
 
 
-#Trying new way of clusterisation
+#Trying new way of clustering
 import sklearn
 from scipy.spatial import distance
 from sklearn.cluster import KMeans, MeanShift, SpectralClustering, AffinityPropagation, Birch, MiniBatchKMeans, AgglomerativeClustering, DBSCAN
@@ -35,10 +35,12 @@ from google.colab import files
 #####################################################################################
 "Making path"
 #####################################################################################
+# auxiliar function used in Making_the_folder_path
 def testing_or_making_path(folder_path):
     if not os.path.exists(folder_path):
           os.makedirs(folder_path)
 
+# Main function to form the correct architecture used in the code
 def Making_the_folder_path(Main_folder_path):
     testing_or_making_path(Main_folder_path)
     
@@ -73,6 +75,7 @@ def Making_the_folder_path(Main_folder_path):
 #####################################################################################
 "Plotting functions"
 #####################################################################################
+# plot one image and it's size to check
 def checking_image(image):
     #check
     print("Image size:",image.shape)
@@ -82,6 +85,7 @@ def checking_image(image):
     plt.figure()
     plt.imshow(image,cmap = plt.cm.gray)
 
+# plot most of the results
 def checking_everything_until_labels(processed_mamm,prediction,binary_image,label_image):
     plt.close('all')
     fig = plt.figure(figsize=(16,10))
@@ -107,6 +111,7 @@ def checking_everything_until_labels(processed_mamm,prediction,binary_image,labe
     ax4.set_axis_off()
 
 
+# Plot only the MC considered for HPV after calculating charateristics and keeping MC of a specific minimal size
 def plotting_Mc_treated_for_HPV(processed_mamm,label_image):
     # prepare plot all MC
     fig = plt.figure()
@@ -127,8 +132,8 @@ def plotting_Mc_treated_for_HPV(processed_mamm,label_image):
 
 
 
-
-def plotting_different_python_clusterisation(clustering_choice,clustering_labels,regions,processed_mamm,binary_image):
+# Plot function used only with the Trying_python_clustering function
+def plotting_different_python_clustering(clustering_choice,clustering_labels,regions,processed_mamm,binary_image):
     n_clusters=num_clusters = len(set(clustering_labels))
 
     plt.imshow(processed_mamm)
@@ -153,7 +158,7 @@ def plotting_different_python_clusterisation(clustering_choice,clustering_labels
     plt.title('Superposition of calcifications on the mammogram')
     plt.show()
 
-
+# plot ground truth, MC detected and also on mammogram to compare with bare eye
 def plotting_Ground_truth(processed_mamm,im_xml,binary_image,dilatation_radius):
     # for display purposes, the pixels found are dilated
     dd = skimage.morphology.disk(radius = dilatation_radius)
@@ -181,7 +186,7 @@ def plotting_Ground_truth(processed_mamm,im_xml,binary_image,dilatation_radius):
     plt.imshow(im_xml_display ,alpha = alphaTab)
     plt.title("Ground truth dilated subploted colored on the mammogram")
 
-
+# subplot both ground truth and detected MC on the mammogram
 def subplot_ground_truth_and_detection_on_mamm(processed_mamm,im_xml,binary_image,dilatation_radius,ground_truth_tranparency,detection_transparency):
     # for display purposes, the pixels found are dilated
     dd = skimage.morphology.disk(radius = dilatation_radius)
@@ -205,7 +210,7 @@ def subplot_ground_truth_and_detection_on_mamm(processed_mamm,im_xml,binary_imag
     plt.title("Ground truth (green) and detected MC (red) subploted on the mammogram")
     plt.show()
 
-
+# plot clusters loaded from HPV on mamm
 def plotting_Cluster_from_HPV_on_mamm(processed_mamm,mc_indices,x_coords,y_coords):
 
   # Create a dictionnary for each cluster
@@ -229,6 +234,7 @@ def plotting_Cluster_from_HPV_on_mamm(processed_mamm,mc_indices,x_coords,y_coord
 #####################################################################################
 "Binarisation and pre-treatment fonctions"
 #####################################################################################
+# Histogram
 def Histogram_and_choosing_threshold_value(prediction):
     # Chosing bins value
     N = len(prediction)
@@ -250,8 +256,7 @@ def Histogram_and_choosing_threshold_value(prediction):
     return bins
 
 
-
-
+# treatment post prediction, binarisation and filling the holes, adapt to HPV format (inversion)
 def pre_treatment(prediction,threshold_value,fill_holes):
     # Copy
     binary_image = np.copy(prediction)
@@ -273,7 +278,7 @@ def pre_treatment(prediction,threshold_value,fill_holes):
 
 
 
-# A function used to search a new threshold and also for the score function
+# An auxiliar function used in the functions to search a new threshold and also the score function
 def binarisation_labeling_and_computation(prediction, threshold):
   #Binarisation
   _, binary_prediction = pre_treatment(prediction,threshold,False)
@@ -296,6 +301,9 @@ def binarisation_labeling_and_computation(prediction, threshold):
 # after running the previously implemented function : Making_the_folder_path
 ## The functions below are tailored to work with those specific format implemented in those 2 files, be aware that if the 
 # format is changed, the functions will need to be adapted
+
+# auxiliar function used for reading DDSM and INbreast ground truth functions
+# perform the same transformation as on the corresponding processed_mammogram so that they are comparable
 def applying_same_transformation_of_mamm(ground_truth_image,left_transpose,act_w):
     # same transformation as on the mammogram (transpose and cut)
     if left_transpose :
@@ -352,7 +360,7 @@ def Ground_truth_reading_INbreast_XML_file(directory_path_ground_truth,file_name
 
     return im_xml,number_of_mc,ROI_id
 
-
+# post treatment applied to INbreast ground truth (because it's only MC contours and not filled)
 def post_treatment_ground_truth_INbreast(im_xml,radius):
     # Structuring element: disk radius -> Be carefull, to big might make 2 MC merge
     d = skimage.morphology.disk(radius=radius)
@@ -374,7 +382,7 @@ def post_treatment_ground_truth_INbreast(im_xml,radius):
     return treated_xml_image
 
 
-# load using upload on collab
+# load using upload on collab DDSM ground truth
 def Ground_truth_uploading_DDSM_dicoms_file(left_transpose,act_w):
     uploaded = files.upload()
 
@@ -391,7 +399,7 @@ def Ground_truth_uploading_DDSM_dicoms_file(left_transpose,act_w):
 
     return GT_mask
 
-# load from a specific path
+# load from a specific path DDSM ground truth
 def Ground_truth_loading_DDSM_dicoms_file(directory_path_ground_truth,file_name,left_transpose,act_w):
     # Path
     Path_INbreast_ground_truth = os.path.join(directory_path_ground_truth,"DDSM")
@@ -407,7 +415,9 @@ def Ground_truth_loading_DDSM_dicoms_file(directory_path_ground_truth,file_name,
     return GT_mask
 
 
-# a score function that estimates the number of commun MC shared by the prediction and the ground truth given a radius around those MC
+# a score function that estimates the number of commun MC shared by the prediction 
+# and the ground truth given a radius around those MC
+# the design kept at the end of the project
 def score_function(ground_truth_image,prediction,accuracy_radius):
     # dilatations for adaptative accuracy, be carefull to high radius might result in merging MC
     if accuracy_radius>0:
@@ -471,7 +481,7 @@ def score_function(ground_truth_image,prediction,accuracy_radius):
     return count_mc_GT,count_mc_only,count_GT_mc,count_GT_only,nc_binary_prediction,nc_GT
 
 
-
+# Function returning a naive score of accuracy
 # Not used anymore because too "naive", because of too much 0 values that are actually the same
 def naive_score_function(ground_truth_image,binary_image):
   number_of_right_pixels=np.sum(binary_image==ground_truth_image)
@@ -490,11 +500,12 @@ def naive_score_function(ground_truth_image,binary_image):
 #####################################################################################
 "Calculating characteristics"
 #####################################################################################
+# labeling
 def labeling(binary_image):
     return skimage.measure.label(binary_image)
 
 
-
+# defined class for Calculating_characteristics_and_MC_locations_for_HPV
 class Features :
     "microcalcifications features"
     def __init__(self):
@@ -517,8 +528,8 @@ class Features :
         print('MinorAxisLength %.2f' % (self.MinorAxisLength ))
         print('MeanIntensity %.2f' % (self.MeanIntensity))
 
-
-def Calculating_characteristics_and_MC_locations_for_HPV(processed_mamm,label_image):
+# Calculating characteristics and MC locations for HPV (used instead of the segmentation of FeDeG code)
+def Calculating_characteristics_and_MC_locations_for_HPV(processed_mamm,label_image,minimal_size_of_one_mc):
     features_list = []
     features_list_for_HPV = []
     MC_locations_for_HPV = []
@@ -530,7 +541,7 @@ def Calculating_characteristics_and_MC_locations_for_HPV(processed_mamm,label_im
         #print("\n ==== MC or region label : ", region.label)
 
         # if the MC is too small we remove it
-        if region.area < 2 or region.perimeter == 0 :
+        if region.area < minimal_size_of_one_mc or region.perimeter == 0 :
             a=1
             #print(" too small ! area : %d ", region.area)
         else :
@@ -594,6 +605,7 @@ def Calculating_characteristics_and_MC_locations_for_HPV(processed_mamm,label_im
 #####################################################################################
 "Saving characteristics, locations and images functions"
 #####################################################################################
+# Save the characteristics calculated by python code for HPV (characteristcs list that has to be put in the matlab folder after)
 def Saving_characteristics_HPV_format(directory_path_characteristics,mammog_name,MC_locations,features_list,chosen_format="txt"):
     #chosen_format: txt or csv but txt recommanded for HPV
     testing_or_making_path(directory_path_characteristics)
@@ -623,7 +635,7 @@ def Saving_characteristics_HPV_format(directory_path_characteristics,mammog_name
             for num in MC_locations:
                 csv_writer.writerow([num])
 
-
+# Save the images produced by python code before HPV
 def Saving_images_used_and_produced(directory_path_img,mammog_name,processed_mamm,prediction,binary_image,chosen_format="png"):
     #chosen_format: png or tif
     testing_or_making_path(directory_path_img)
@@ -651,6 +663,7 @@ def Saving_images_used_and_produced(directory_path_img,mammog_name,processed_mam
 #####################################################################################
 "Saving characteristics, locations in a specific csv Table for INbreast case"
 #####################################################################################
+# auxiliar function used in Formating_Saving_Mc_Information
 def create_mc_data_list(features_list,number_of_characteristics):
     num_mc = round(len(features_list)/number_of_characteristics)
     mc_data = []
@@ -668,6 +681,7 @@ def create_mc_data_list(features_list,number_of_characteristics):
         mc_data.append((num_mc,centroid_x, centroid_y, Area, Eccentricity, Solidity, Circularity, MajorAxisLength, MinorAxisLength, MeanIntensity))
     return mc_data
 
+# auxiliar function used in Formating_Saving_Mc_Information
 def append_patient_data(data, file_name, mc_data,INbreast_format,INbreast_row,patient_id):
     new_rows = []
     for mc_row in mc_data:
@@ -679,6 +693,9 @@ def append_patient_data(data, file_name, mc_data,INbreast_format,INbreast_row,pa
         new_rows.append(new_row)
     data.extend(new_rows)
 
+# Saving under a specific format, a csv table with additionnal metadata (only if you have added the metadata csv table 
+# in the right folder) in the case of INbreast, or without the meta if you specify is_INbreast_format as false
+# You could do that for other dataset or if you want an INbreast table without metadata
 def Formating_Saving_Mc_Information(directory_path_MC_table,file_name,patient_id,features_list,number_of_characteristics,table_name,is_INbreast_format):
     # Path making
     testing_or_making_path(directory_path_MC_table)
@@ -742,6 +759,7 @@ def Formating_Saving_Mc_Information(directory_path_MC_table,file_name,patient_id
 #####################################################################################
 "Loading cluster and FeDeG statistics from HPV (Matlab code)"
 #####################################################################################
+# Read the cluster index (in a csv table at the indicated path) table made with HPV code
 def reading_Cluster_from_HPV(table_name,directory_path_features_from_HPV):
   # Making the path
   table_name=table_name+'.csv'
@@ -769,9 +787,10 @@ def reading_Cluster_from_HPV(table_name,directory_path_features_from_HPV):
 
 
 #####################################################################################
-"Performing python clusterisation"
+"Performing python clustering"
 #####################################################################################
-def Trying_python_clusterisation(clustering_choice,binary_image,n_clusters=5,epsilon=10,min_samples=4):
+# performing de clustering with python approaches
+def Trying_python_clustering(clustering_choice,binary_image,n_clusters=5,epsilon=10,min_samples=4):
     # Locations of calcifications
     regions = np.argwhere(binary_image == 1)
 
@@ -957,6 +976,7 @@ def convert_dicoms_to_png(path):
     im_8bit = Image.fromarray(image_8bit)
     return im_8bit
 
+# folder to folder
 def transforming_Dicoms_folder_to_png(input_folder,output_folder):
     #WARNING you might need to do : !pip install pydicom
 
