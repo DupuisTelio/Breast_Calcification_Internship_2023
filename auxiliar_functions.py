@@ -29,7 +29,8 @@ from PIL import Image
 import sys
 from xml.dom import minidom
 
-
+# Colab
+from google.colab import files
 
 #####################################################################################
 "Making path"
@@ -48,7 +49,7 @@ def Making_the_folder_path(Main_folder_path):
     directory_path_MC_table = os.path.join(Main_folder_path,"MC_table")
 
     directory_path_ground_truth = os.path.join(Main_folder_path,"Ground_truth")
-    directory_path_ground_truth_INbreast = os.path.join(directory_path_ground_truth,"INreast")
+    directory_path_ground_truth_INbreast = os.path.join(directory_path_ground_truth,"INbreast")
     directory_path_ground_truth_DDSM= os.path.join(directory_path_ground_truth,"DDSM")
 
     directory_path_features_from_HPV = os.path.join(Main_folder_path,"Features_from_HPV")
@@ -295,6 +296,16 @@ def binarisation_labeling_and_computation(prediction, threshold):
 # after running the previously implemented function : Making_the_folder_path
 ## The functions below are tailored to work with those specific format implemented in those 2 files, be aware that if the 
 # format is changed, the functions will need to be adapted
+def applying_same_transformation_of_mamm(ground_truth_image,left_transpose,act_w):
+    # same transformation as on the mammogram (transpose and cut)
+    if left_transpose :
+        ground_truth_image[:, :] = ground_truth_image[:, ::-1]
+
+    ground_truth_image = cut_mamm(ground_truth_image, act_w)  # warning used the act_w of the mamm
+
+    return ground_truth_image
+
+
 def Ground_truth_reading_INbreast_XML_file(directory_path_ground_truth,file_name,shape_init,left_transpose,act_w):
     # Path
     Path_INbreast_ground_truth = os.path.join(directory_path_ground_truth,"INbreast")
@@ -337,10 +348,7 @@ def Ground_truth_reading_INbreast_XML_file(directory_path_ground_truth,file_name
 
 
     # same transformation as on the mammogram (transpose and cut)
-    if left_transpose :
-        im_xml[:, :] = im_xml[:, ::-1]
-
-    im_xml = cut_mamm(im_xml, act_w)  # warning used the act_w of the mamm
+    im_xml = applying_same_transformation_of_mamm(im_xml,left_transpose,act_w)
 
     return im_xml,number_of_mc,ROI_id
 
@@ -365,6 +373,38 @@ def post_treatment_ground_truth_INbreast(im_xml,radius):
     print("New number of MC (to compare with the old one, should be the same or reduce radius) :",treated_xml_image.max())
     return treated_xml_image
 
+
+# load using upload on collab
+def Ground_truth_uploading_DDSM_dicoms_file(left_transpose,act_w):
+    uploaded = files.upload()
+
+    for k, v in uploaded.items():
+        open(k, 'wb').write(v)
+        break;
+
+    # reading
+    dicom_data = pydicom.dcmread(k)
+    GT_mask = dicom_data.pixel_array.astype(np.float32) / np.max(dicom_data.pixel_array)
+
+    # same transformation as on the mammogram (transpose and cut)
+    GT_mask = applying_same_transformation_of_mamm(GT_mask,left_transpose,act_w)
+
+    return GT_mask
+
+# load from a specific path
+def Ground_truth_loading_DDSM_dicoms_file(directory_path_ground_truth,file_name,left_transpose,act_w):
+    # Path
+    Path_INbreast_ground_truth = os.path.join(directory_path_ground_truth,"DDSM")
+    Path_ground_truth_file = os.path.join(Path_INbreast_ground_truth,file_name)
+
+    # reading
+    dicom_data = pydicom.dcmread(Path_ground_truth_file)
+    GT_mask = dicom_data.pixel_array.astype(np.float32) / np.max(dicom_data.pixel_array)
+
+    # same transformation as on the mammogram (transpose and cut)
+    GT_mask = applying_same_transformation_of_mamm(GT_mask,left_transpose,act_w)
+
+    return GT_mask
 
 
 # a score function that estimates the number of commun MC shared by the prediction and the ground truth given a radius around those MC
@@ -798,7 +838,7 @@ def calculate_minimal_distance_for_1_MC(labeled_image, region_label_1):
 # Calculate the AMD among all MC of the image, border-border
 def calculate_AMD_between_MC(binary_image,print_advance):
     current_time=time.time()
-    labeled_image = skimage.measure.label(image)
+    labeled_image = skimage.measure.label(binary_image)
     numbers_of_MC=np.amax(labeled_image)
     mean_of_min=0
     for label_index in range(0,numbers_of_MC):
@@ -889,7 +929,7 @@ def count_MC_in_radius_for_a_specific_MC(binary_image, MC_index, radius,label_al
 
 # Calculate the MC_in for each MC of the image
 def count_Mc_IN_general(binary_image,radius):
-    labeled_image = skimage.measure.label(image)
+    labeled_image = skimage.measure.label(binary_image)
     numbers_of_MC=np.amax(labeled_image)
     Sum=0
     for MC_index in range(0,numbers_of_MC):
@@ -957,3 +997,198 @@ def cut_mamm(mamm, act_w):
     # assert mamm['mamm'].shape[0] % 16 == mamm['mamm'].shape[1] % 16 == 0
 
     return mamm
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#####################################################################################
+"Code in the making, not finished before the end of the internship."
+"Might be interesing to go further with it"
+#####################################################################################
+
+
+
+
+# The idea of the 2 functions below was to do the same as Calculating_characteristics_and_MC_locations_for_HPV but 
+# with every characteristics used in HPV later on. But not enough time to finish it, and it wasn't a priority at all
+def defining_class_for_HPV_long():
+    class Calc_features :
+        "microcalcifications HPV features"
+        def __init__(self):
+            self.Area = 0
+            self.Centroid = 0
+            self.MajorAxisLength = 0
+            self.MinorAxisLength = 0
+            self.Eccentricity = 0
+            self.Orientation = 0
+            self.EquivDiameter = 0
+            self.Solidity = 0
+            self.Perimeter = 0
+            self.WeightedCentroid = 0 ##
+            self.Circularity = 0
+            self.EllipticalDeviation = 0
+            self.MassDisplacement = 0
+            self.IntegratedIntensity= 0
+            self.MeanIntensity= 0
+            self.IntensityDeviation= 0
+            self.IntensityRange= 0
+
+            self.MeanInsideBoundaryIntensity= 0 ##
+            self.InsideBoundaryIntensityDeviation = 0 ##
+            self.InsideBoundaryIntensityRange = 0 ##
+            self.NormalizedInsideBoundaryIntensity = 0 ##
+
+            self.MeanOutsideBoundaryIntensity= 0
+            self.OutsideBoundaryIntensityDeviation = 0
+            self.OutsideBoundaryIntensityRange = 0
+            self.NormalizedOutsideBoundaryIntensity = 0
+
+            self.BoundarySaliency = 0
+            self.NormalizedBoundarySaliency = 0
+
+        def print_fea(self):
+            print('Area %d' % (self.Area))
+            print('Centroid (%.2f %.2f)' % (self.Centroid))
+            print('MajorAxisLength %.2f' % (self.MajorAxisLength ))
+            print('MinorAxisLength %.2f' % (self.MinorAxisLength ))
+            print('Eccentricitcy %.2f' % (self.Eccentricitcy))
+            print('Orientation %.2f' % (self.Orientation))
+            print('EquivDiameter %.2f' % (self.EquivDiameter))
+            print('Solidity %.2f' % (self.Solidity))
+            print('Perimeter %.2f' % (self.Perimeter))
+            print('WeightedCentroid (%.2f %.2f)' % (self.WeightedCentroid))
+
+            print('Circularity %.2f' % (self.Circularity))
+            print('EllipticalDeviation %.2f' % (self.EllipticalDeviation))
+            print('MassDisplacement %.2f' % (self.MassDisplacement))
+
+            print('IntegratedIntensity %.2f' % (self.IntegratedIntensity))
+            print('MeanIntensity %.2f' % (self.MeanIntensity))
+            print('IntensityDeviation %.2f' % (self.IntensityDeviation))
+            print('IntensityRange %.2f' % (self.IntensityRange))
+
+        def print_addit_fea(self):
+            print("\n")
+            print('MeanInsideBoundaryIntensity %.2f' % (self.MeanInsideBoundaryIntensity) )
+            print('InsideBoundaryIntensityDeviation %.2f' % (self.InsideBoundaryIntensityDeviation) )
+            print('InsideBoundaryIntensityRange %.2f' % (self.InsideBoundaryIntensityRange) )
+            print('NormalizedInsideBoundaryIntensity %.2f' % (self.NormalizedInsideBoundaryIntensity) )
+
+            print('MeanOutsideBoundaryIntensity %.2f' % (self.MeanOutsideBoundaryIntensity) )
+            print('OutsideBoundaryIntensityDeviation %.2f' % ( self.OutsideBoundaryIntensityDeviation) )
+            print('OutsideBoundaryIntensityRange %.2f' % (self.OutsideBoundaryIntensityRange) )
+            print('NormalizedOutsideBoundaryIntensity %.2f' % (self.NormalizedOutsideBoundaryIntensity) )
+
+            print('BoundarySaliency %.2f' % (self.BoundarySaliency))
+            print('NormalizedBoundarySaliency %.2f' % (self.NormalizedBoundarySaliency))
+
+
+def Calculating_characteristics_and_MC_locations_for_HPV_long(processed_mamm,label_image):
+
+    # Properties determination
+    # For matlab next step: *255
+    processed_mamm = processed_mamm*255
+    props = skimage.measure.regionprops(label_image,processed_mamm)
+
+    for region in props:
+
+        #print("\n ==== region label : ", region.label)
+        features_long_list = Calc_features()
+
+        # fill attributs directly matlab to python
+        features_long_list.Area = region.area
+        features_long_list.Centroid = region.centroid
+        features_long_list.MajorAxisLength = region.axis_major_length
+        features_long_list.MinorAxisLength = region.axis_minor_length
+        features_long_list.Eccentricicy = region.eccentricity
+
+        features_long_list.Orientation = region.orientation
+        features_long_list.EquivDiameter = region.equivalent_diameter_area
+        features_long_list.Solidity = region.solidity
+        features_long_list.Perimeter = region.perimeter
+        features_long_list.WeightedCentroid = region.centroid_weighted
+
+        # fill attributs light blue
+        features_long_list.Circularity =  4 * math.pi * features_long_list.Area / (features_long_list.Perimeter**2)
+        features_long_list.MassDisplacement = sqrt(sum((np.array(features_long_list.Centroid) - np.array( features_long_list.WeightedCentroid))**2)) / features_long_list.EquivDiameter
+
+        # fill attributs dark blue
+        # we use python if available
+        lab = region.label
+        regionNG = region.image_intensity
+        regionMask = region.image_filled     #region.image
+        pixelValues = regionNG * regionMask
+
+
+        #not computed. Default value ????
+        features_long_list.EllipticalDeviation = 0
+
+
+        features_long_list.IntegratedIntensity= pixelValues.sum()
+        features_long_list.MeanIntensity= pixelValues.mean()  #intensity_mean
+        features_long_list.IntensityDeviation= pixelValues.std()
+        features_long_list.IntensityRange= np.percentile(pixelValues,97.5) - np.percentile(pixelValues,2.5)
+
+        #features_long_list.print_fea()
+
+        # fill attributs violine
+
+        se = skimage.morphology.disk(round(features_long_list.EquivDiameter/8))
+
+        ero = skimage.morphology.binary_erosion(regionMask, footprint =se)
+        insideBoundary = regionMask - 1*ero  # to get numerical and not boolean
+        insideBoundaryValues = regionNG * insideBoundary;
+
+        list_insideBoundaryValues = insideBoundaryValues[insideBoundary!=0]
+
+        if len(list_insideBoundaryValues) > 0 :
+        # inside boundary intensity statistics:
+            features_long_list.MeanInsideBoundaryIntensity = list_insideBoundaryValues.mean()
+            features_long_list.InsideBoundaryIntensityDeviation = list_insideBoundaryValues.std()
+            features_long_list.InsideBoundaryIntensityRange = np.percentile(list_insideBoundaryValues,97.5) - np.percentile(list_insideBoundaryValues,2.5)
+            features_long_list.NormalizedInsideBoundaryIntensity = features_long_list.MeanInsideBoundaryIntensity / features_long_list.MeanIntensity
+
+        # outside boundary intensuty statistics:
+        #Problems of value, not the best solution yet:
+        regionMaskbis = np.copy(label_image)
+        regionMaskbis[label_image != region.label] = 0
+        regionMaskbis[label_image == region.label] =1
+        #plt.figure()
+        #plt.imshow(regionMaskbis )
+        dil = skimage.morphology.binary_dilation(regionMaskbis, footprint =se)
+        outsideBoundary = 1*dil - regionMaskbis
+
+        outsideBoundaryValues = processed_mamm * outsideBoundary
+        #plt.figure()
+        #plt.imshow(outsideBoundaryValues  )
+
+        # outside boundary intensuty statistics:
+        list_outsideBoundaryValues = outsideBoundaryValues[outsideBoundary!=0]
+
+        if len(list_outsideBoundaryValues) > 0 :
+            features_long_list.MeanOutsideBoundaryIntensity = list_outsideBoundaryValues.mean()
+            features_long_list.OutsideBoundaryIntensityDeviation = list_outsideBoundaryValues.std()
+            features_long_list.OutsideBoundaryIntensityRange = np.percentile(list_outsideBoundaryValues, 97.5) - np.percentile(list_outsideBoundaryValues, 2.5)
+            features_long_list.NormalizedOutsideBoundaryIntensity = features_long_list.MeanOutsideBoundaryIntensity / features_long_list.MeanIntensity
+
+        features_long_list.BoundarySaliency = features_long_list.MeanInsideBoundaryIntensity - features_long_list.MeanOutsideBoundaryIntensity
+        features_long_list.NormalizedBoundarySaliency = features_long_list.NormalizedInsideBoundaryIntensity - features_long_list.NormalizedOutsideBoundaryIntensity
+
+        #features_long_list.print_addit_fea()
+
