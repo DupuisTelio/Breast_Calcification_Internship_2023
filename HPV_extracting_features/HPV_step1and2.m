@@ -26,7 +26,7 @@ addpath(genpath([curpath '/nuclei_seg']));
 %I_normRed=I;
 
 % image mammo
-I = imread([pwd '\TELIO_img_for_HPV\modified_ouput_CALC1.png']);
+I = imread([pwd '\TELIO_img_for_HPV_\modified_ouput_CALC1.png']);
 I_normRed=I;
 
 figure; imshow(I);
@@ -35,9 +35,10 @@ figure; imshow(I);
 
 p.scales=3:2:10;% the scale of nuclei
 
-[nuclei, properties] = nucleiSegmentationV2(I_normRed,p);
-%properties = HPV_load_properties_of_MC('TELIO_charac_for_HPV/features_list.txt');
-%nuclei = HPV_load_MC('TELIO_charac_for_HPV/MC_locations_list.txt');
+%[nuclei, properties] = nucleiSegmentationV2(I_normRed,p);
+properties = HPV_load_properties_of_MC('HPV_DataFolder/input/charac_lists/features_list.txt');
+nuclei = HPV_load_MC('HPV_DataFolder/input/charac_lists//MC_locations_list.txt');
+
 
 show(I,1);hold on;
 
@@ -50,10 +51,10 @@ hold off;
 im_choice=1;
 if im_choice==0
     % plot only on microcalcification
-    I = imread([pwd '\TELIO_img_for_HPV\modified_ouput_CALC1.png']);
+    I = imread([pwd '\TELIO_img_for_HPV_\modified_ouput_CALC1.png']);
 else
     % direclty on the mammogram image
-    I = imread([pwd '\TELIO_img_for_HPV\input_00001.png']);
+    I = imread([pwd '\TELIO_img_for_HPV_\input_00001.png']);
 end
 I_normRed=I;
 
